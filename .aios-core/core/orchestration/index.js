@@ -144,6 +144,9 @@ const {
   PHASE_1_SEQUENCE,
 } = require('./greenfield-handler');
 
+// Story WSB-0.1: Consolidated Orchestration Entrypoint (Epic WSB, Fase 0)
+const { getOrchestrator, ORCHESTRATOR_GENERATIONS } = require('./entrypoint');
+
 module.exports = {
   // Main orchestrators
   WorkflowOrchestrator,
@@ -316,4 +319,8 @@ module.exports = {
   GreenfieldPhaseFailureAction,
   DEFAULT_GREENFIELD_INDICATORS,
   PHASE_1_SEQUENCE,
+
+  // Story WSB-0.1: Consolidated Orchestration Entrypoint (Epic WSB, Fase 0)
+  getOrchestrator,
+  ORCHESTRATOR_GENERATIONS,
 };

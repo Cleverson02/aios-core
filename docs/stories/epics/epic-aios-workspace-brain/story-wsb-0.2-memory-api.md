@@ -38,3 +38,4 @@ Os módulos foram removidos como órfãos na Story MIS-2, mas os consumidores pe
 - `.aios-core/core/memory/index.js` (novo — barrel)
 - `.aios-core/core/memory/__tests__/memory-query.test.js` (novo)
 - `.aios-core/core/memory/__tests__/session-memory.test.js` (novo)
+- `.aios-core/core/memory/gotchas-memory.js` (modificado — dual-export para compatibilizar `new GotchasMemory()` dos consumidores `execution/` com o `{ GotchasMemory }` já usado por `build-orchestrator`/barrel; backward-compatible)

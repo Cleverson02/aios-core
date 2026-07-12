@@ -26,6 +26,7 @@ const SkillDispatcher = require('./skill-dispatcher');
 
 /**
  * Orchestrates multi-agent workflow execution
+ * @deprecated Use core/orchestration/entrypoint.getOrchestrator() — consolidação Epic WSB (Fase 0). Será removido em major release.
  */
 class WorkflowOrchestrator {
   /**

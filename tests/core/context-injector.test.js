@@ -199,6 +199,8 @@ describe('ContextInjector', () => {
   describe('Memory integration', () => {
     test('getRelevantMemory returns empty without memoryQuery', async () => {
       const ci = new ContextInjector({ memoryQuery: null });
+      // The ctor falls back to a real MemoryQuery since WSB-0.2; force absence
+      ci.memoryQuery = null;
       const result = await ci.getRelevantMemory({ id: 't1', description: 'test' });
       expect(result).toEqual([]);
     });
@@ -220,6 +222,8 @@ describe('ContextInjector', () => {
 
     test('getRecentDecisions returns empty without sessionMemory', async () => {
       const ci = new ContextInjector({ sessionMemory: null });
+      // The ctor falls back to a real SessionMemory since WSB-0.2; force absence
+      ci.sessionMemory = null;
       expect(await ci.getRecentDecisions()).toEqual([]);
     });
   });

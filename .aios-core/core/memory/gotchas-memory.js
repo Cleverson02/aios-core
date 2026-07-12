@@ -1136,15 +1136,18 @@ Acceptance Criteria Coverage:
 //                              EXPORTS
 // ═══════════════════════════════════════════════════════════════════════════════════
 
-module.exports = {
-  GotchasMemory,
-  // Enums
-  GotchaCategory,
-  Severity,
-  Events,
-  // Config
-  CONFIG,
-};
+// Dual export: the class is the default export (supports
+// `const GotchasMemory = require('./gotchas-memory'); new GotchasMemory()`),
+// while named properties remain available for
+// `const { GotchasMemory } = require('./gotchas-memory')`.
+module.exports = GotchasMemory;
+module.exports.GotchasMemory = GotchasMemory;
+// Enums
+module.exports.GotchaCategory = GotchaCategory;
+module.exports.Severity = Severity;
+module.exports.Events = Events;
+// Config
+module.exports.CONFIG = CONFIG;
 
 // Run CLI if executed directly
 if (require.main === module) {

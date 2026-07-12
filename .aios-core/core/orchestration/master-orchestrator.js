@@ -130,6 +130,7 @@ const EPIC_CONFIG = {
 
 /**
  * Master Orchestrator - Coordinates all ADE epics in unified execution
+ * @deprecated Use core/orchestration/entrypoint.getOrchestrator() — consolidação Epic WSB (Fase 0). Será removido em major release.
  * @extends EventEmitter
  */
 class MasterOrchestrator extends EventEmitter {
