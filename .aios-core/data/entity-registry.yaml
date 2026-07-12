@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-12T23:14:42.002Z'
-  entityCount: 492
+  lastUpdated: '2026-07-12T23:22:55.593Z'
+  entityCount: 495
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -5983,21 +5983,23 @@ entities:
       checksum: sha256:74ac4edc22f53a6e1ff7fe7d16add65b4e85e198dcdd0f54d3048ba032dc8f9a
       lastVerified: '2026-02-08T13:33:24.327Z'
     index:
-      path: .aios-core/core/workspace/index.js
+      path: .aios-core/core/brain/index.js
       type: module
-      purpose: Entity at .aios-core/core/workspace/index.js
+      purpose: Entity at .aios-core/core/brain/index.js
       keywords:
         - index
       usedBy: []
       dependencies:
-        - workspace-manager
+        - indexer
         - cli
+        - chunker
+        - lexical-search
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:c76066fab4b4b14ad4b0142f99755cb6bac965faeee640ffe3761e2b266c6a31
-      lastVerified: '2026-07-12T23:14:42.001Z'
+      checksum: sha256:af9f379cbb6bd80933be4c0c62e9943ccbfcafa20dcf91e2f16ae603d18aa397
+      lastVerified: '2026-07-12T23:22:55.591Z'
     config-cache:
       path: .aios-core/core/config/config-cache.js
       type: module
@@ -8492,21 +8494,21 @@ entities:
       checksum: sha256:db224469d08f2b0ae8b9e4961b950fc6325ba5cacab04047c8fb6f0eb0c6b614
       lastVerified: '2026-07-12T22:47:15.385Z'
     cli:
-      path: .aios-core/core/workspace/cli.js
+      path: .aios-core/core/brain/cli.js
       type: module
-      purpose: Entity at .aios-core/core/workspace/cli.js
+      purpose: Entity at .aios-core/core/brain/cli.js
       keywords:
         - cli
       usedBy:
         - index
       dependencies:
-        - workspace-manager
+        - indexer
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:ece14a72f2d0b62ba12a07ef7298cd7dd05a6a20cab38e12b4cea6709d43fb02
-      lastVerified: '2026-07-12T23:14:42.000Z'
+      checksum: sha256:8a132c96a759211705fc24b874a62c209cd720526c953488657f790a7a171cd3
+      lastVerified: '2026-07-12T23:22:55.591Z'
     area-index-template:
       path: .aios-core/core/workspace/templates/area-index-template.md
       type: module
@@ -8551,9 +8553,7 @@ entities:
       keywords:
         - workspace
         - manager
-      usedBy:
-        - index
-        - cli
+      usedBy: []
       dependencies:
         - workspace-schema
       adaptability:
@@ -8562,6 +8562,58 @@ entities:
         extensionPoints: []
       checksum: sha256:627ff09857070abf4c301eb76e9284291d171c9dd249207c763b714b3dba7e83
       lastVerified: '2026-07-12T23:14:42.001Z'
+    chunker:
+      path: .aios-core/core/brain/chunker.js
+      type: module
+      purpose: Entity at .aios-core/core/brain/chunker.js
+      keywords:
+        - chunker
+      usedBy:
+        - index
+        - indexer
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:27e4988d1ddee0f6c3120d529199ffb17d333de885d6a01a841628e3a0f3a379
+      lastVerified: '2026-07-12T23:22:55.590Z'
+    indexer:
+      path: .aios-core/core/brain/indexer.js
+      type: module
+      purpose: Entity at .aios-core/core/brain/indexer.js
+      keywords:
+        - indexer
+      usedBy:
+        - index
+        - cli
+      dependencies:
+        - chunker
+        - lexical-search
+        - workspace
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:d8b116c1d1e3ea15bdab4751cbdbb76bd20ff0fc5bd59ab7288ffca89e34231e
+      lastVerified: '2026-07-12T23:22:55.591Z'
+    lexical-search:
+      path: .aios-core/core/brain/lexical-search.js
+      type: module
+      purpose: Entity at .aios-core/core/brain/lexical-search.js
+      keywords:
+        - lexical
+        - search
+      usedBy:
+        - index
+        - indexer
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:0c4fc9f5ea64568b8b3a1cf7739069327fc43e0e43c1283895c6565fe18e8d91
+      lastVerified: '2026-07-12T23:22:55.592Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md
