@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-02-11T02:17:11.048Z'
-  entityCount: 484
+  lastUpdated: '2026-07-12T22:47:15.388Z'
+  entityCount: 488
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -5983,30 +5983,48 @@ entities:
       checksum: sha256:74ac4edc22f53a6e1ff7fe7d16add65b4e85e198dcdd0f54d3048ba032dc8f9a
       lastVerified: '2026-02-08T13:33:24.327Z'
     index:
-      path: .aios-core/core/ids/index.js
+      path: .aios-core/core/memory/index.js
       type: module
-      purpose: Entity at .aios-core\core\ids\index.js
+      purpose: Entity at .aios-core/core/orchestration/index.js
       keywords:
         - index
       usedBy: []
       dependencies:
-        - registry-loader
-        - incremental-decision-engine
-        - registry-updater
-        - registry-healer
-        - circuit-breaker
-        - verification-gate
-        - g1-epic-creation
-        - g2-story-creation
-        - g3-story-validation
-        - g4-dev-context
-        - framework-governor
+        - workflow-orchestrator
+        - subagent-prompt-builder
+        - context-manager
+        - checklist-runner
+        - parallel-executor
+        - tech-stack-detector
+        - condition-evaluator
+        - skill-dispatcher
+        - master-orchestrator
+        - recovery-handler
+        - gate-evaluator
+        - agent-invoker
+        - dashboard-integration
+        - cli-commands
+        - executor-assignment
+        - terminal-spawner
+        - workflow-executor
+        - surface-checker
+        - session-state
+        - ui
+        - bob-orchestrator
+        - lock-manager
+        - data-lifecycle-manager
+        - epic-context-accumulator
+        - bob-status-writer
+        - message-formatter
+        - brownfield-handler
+        - greenfield-handler
+        - entrypoint
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:89969400668078caea7398b0d7218f3f2fab2e996c05b6361e5618da2b9262d2
-      lastVerified: '2026-02-10T15:57:42.783Z'
+      checksum: sha256:905f704d1eb345602fe0c6626d645ceec50529568351b89c4641825ec7d7af7c
+      lastVerified: '2026-07-12T22:47:15.386Z'
     config-cache:
       path: .aios-core/core/config/config-cache.js
       type: module
@@ -6316,6 +6334,7 @@ entities:
         - parallel
         - executor
       usedBy:
+        - index
         - workflow-orchestrator
       dependencies: []
       adaptability:
@@ -6537,8 +6556,8 @@ entities:
         - registry
         - loader
       usedBy:
-        - index
         - framework-governor
+        - registry-facade
       dependencies: []
       adaptability:
         score: 0.4
@@ -6663,8 +6682,8 @@ entities:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:b0fe8524e98e992653b1e6cdf06a2b102ddb4d8729b6fecf0fe981bec5decdf4
-      lastVerified: '2026-02-08T13:33:24.338Z'
+      checksum: sha256:33295b2b0041cb579d759046e26476980b4cc33f1507ad41736c7b2bfdea3252
+      lastVerified: '2026-07-12T22:47:15.383Z'
     agent-invoker:
       path: .aios-core/core/orchestration/agent-invoker.js
       type: module
@@ -6673,6 +6692,7 @@ entities:
         - agent
         - invoker
       usedBy:
+        - index
         - master-orchestrator
       dependencies: []
       adaptability:
@@ -6689,6 +6709,8 @@ entities:
         - bob
         - orchestrator
       usedBy:
+        - index
+        - entrypoint
         - pm
       dependencies:
         - config-resolver
@@ -6719,6 +6741,7 @@ entities:
         - status
         - writer
       usedBy:
+        - index
         - bob-orchestrator
       dependencies: []
       adaptability:
@@ -6735,6 +6758,7 @@ entities:
         - brownfield
         - handler
       usedBy:
+        - index
         - bob-orchestrator
       dependencies:
         - workflow-executor
@@ -6754,6 +6778,7 @@ entities:
         - checklist
         - runner
       usedBy:
+        - index
         - workflow-orchestrator
       dependencies: []
       adaptability:
@@ -6769,7 +6794,8 @@ entities:
       keywords:
         - cli
         - commands
-      usedBy: []
+      usedBy:
+        - index
       dependencies:
         - master-orchestrator
       adaptability:
@@ -6786,6 +6812,7 @@ entities:
         - condition
         - evaluator
       usedBy:
+        - index
         - workflow-orchestrator
       dependencies: []
       adaptability:
@@ -6802,6 +6829,7 @@ entities:
         - context
         - manager
       usedBy:
+        - index
         - workflow-orchestrator
       dependencies: []
       adaptability:
@@ -6818,6 +6846,7 @@ entities:
         - dashboard
         - integration
       usedBy:
+        - index
         - master-orchestrator
       dependencies:
         - events
@@ -6836,6 +6865,7 @@ entities:
         - lifecycle
         - manager
       usedBy:
+        - index
         - bob-orchestrator
         - pm
       dependencies:
@@ -6854,7 +6884,8 @@ entities:
         - epic
         - context
         - accumulator
-      usedBy: []
+      usedBy:
+        - index
       dependencies: []
       adaptability:
         score: 0.4
@@ -6871,6 +6902,7 @@ entities:
         - assignment
       usedBy:
         - brownfield-create-epic
+        - index
         - bob-orchestrator
         - workflow-executor
       dependencies: []
@@ -6888,6 +6920,7 @@ entities:
         - gate
         - evaluator
       usedBy:
+        - index
         - master-orchestrator
       dependencies: []
       adaptability:
@@ -6921,6 +6954,7 @@ entities:
         - greenfield
         - handler
       usedBy:
+        - index
         - bob-orchestrator
       dependencies:
         - workflow-executor
@@ -6941,6 +6975,7 @@ entities:
         - lock
         - manager
       usedBy:
+        - index
         - bob-orchestrator
         - data-lifecycle-manager
       dependencies: []
@@ -6958,7 +6993,9 @@ entities:
         - master
         - orchestrator
       usedBy:
+        - index
         - cli-commands
+        - entrypoint
       dependencies:
         - tech-stack-detector
         - executors
@@ -6970,8 +7007,8 @@ entities:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:0f636d7b7a26c4d5ea63c1ddce3bf96096033bbca462678168e4096ccfe96038
-      lastVerified: '2026-02-08T13:33:24.349Z'
+      checksum: sha256:606ba1662bfef03346b9a33658e5aedd2258ddaa4f3e241eaae8f120ec68ff13
+      lastVerified: '2026-07-12T22:47:15.386Z'
     message-formatter:
       path: .aios-core/core/orchestration/message-formatter.js
       type: module
@@ -6980,6 +7017,7 @@ entities:
         - message
         - formatter
       usedBy:
+        - index
         - bob-orchestrator
       dependencies: []
       adaptability:
@@ -6996,6 +7034,7 @@ entities:
         - recovery
         - handler
       usedBy:
+        - index
         - master-orchestrator
       dependencies:
         - stuck-detector
@@ -7016,6 +7055,7 @@ entities:
         - state
       usedBy:
         - greeting-builder
+        - index
         - bob-orchestrator
         - brownfield-handler
         - greenfield-handler
@@ -7035,6 +7075,7 @@ entities:
         - skill
         - dispatcher
       usedBy:
+        - index
         - workflow-orchestrator
       dependencies: []
       adaptability:
@@ -7052,6 +7093,7 @@ entities:
         - prompt
         - builder
       usedBy:
+        - index
         - workflow-orchestrator
       dependencies: []
       adaptability:
@@ -7069,6 +7111,7 @@ entities:
         - checker
       usedBy:
         - greeting-builder
+        - index
         - bob-orchestrator
         - brownfield-handler
         - greenfield-handler
@@ -7105,6 +7148,7 @@ entities:
         - stack
         - detector
       usedBy:
+        - index
         - master-orchestrator
         - workflow-orchestrator
       dependencies: []
@@ -7122,6 +7166,7 @@ entities:
         - terminal
         - spawner
       usedBy:
+        - index
         - greenfield-handler
         - workflow-executor
       dependencies: []
@@ -7139,6 +7184,7 @@ entities:
         - workflow
         - executor
       usedBy:
+        - index
         - bob-orchestrator
         - brownfield-handler
         - greenfield-handler
@@ -7155,11 +7201,13 @@ entities:
     workflow-orchestrator:
       path: .aios-core/core/orchestration/workflow-orchestrator.js
       type: module
-      purpose: Entity at .aios-core\core\orchestration\workflow-orchestrator.js
+      purpose: Entity at .aios-core/core/orchestration/workflow-orchestrator.js
       keywords:
         - workflow
         - orchestrator
-      usedBy: []
+      usedBy:
+        - index
+        - entrypoint
       dependencies:
         - subagent-prompt-builder
         - context-manager
@@ -7172,8 +7220,8 @@ entities:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:fb89682ea86d33bf8453062f82be0313fbfdf4da42ebf0220dd12dc29238a50a
-      lastVerified: '2026-02-08T13:33:24.353Z'
+      checksum: sha256:50a9628cc38b699d4009ebed5cf9c8ec7124aac9e60582e9e19a91f15b58ed30
+      lastVerified: '2026-07-12T22:47:15.387Z'
     operation-guard:
       path: .aios-core/core/permissions/operation-guard.js
       type: module
@@ -8238,7 +8286,6 @@ entities:
         - registry
         - updater
       usedBy:
-        - index
         - framework-governor
       dependencies: []
       adaptability:
@@ -8293,7 +8340,6 @@ entities:
         - circuit
         - breaker
       usedBy:
-        - index
         - verification-gate
       dependencies: []
       adaptability:
@@ -8309,8 +8355,7 @@ entities:
       keywords:
         - framework
         - governor
-      usedBy:
-        - index
+      usedBy: []
       dependencies:
         - registry-loader
         - incremental-decision-engine
@@ -8329,8 +8374,7 @@ entities:
         - g1
         - epic
         - creation
-      usedBy:
-        - index
+      usedBy: []
       dependencies: []
       adaptability:
         score: 0.4
@@ -8346,8 +8390,7 @@ entities:
         - g2
         - story
         - creation
-      usedBy:
-        - index
+      usedBy: []
       dependencies: []
       adaptability:
         score: 0.4
@@ -8363,8 +8406,7 @@ entities:
         - g3
         - story
         - validation
-      usedBy:
-        - index
+      usedBy: []
       dependencies: []
       adaptability:
         score: 0.4
@@ -8380,8 +8422,7 @@ entities:
         - g4
         - dev
         - context
-      usedBy:
-        - index
+      usedBy: []
       dependencies: []
       adaptability:
         score: 0.4
@@ -8398,7 +8439,6 @@ entities:
         - healer
       usedBy:
         - ids-health
-        - index
       dependencies: []
       adaptability:
         score: 0.4
@@ -8413,8 +8453,7 @@ entities:
       keywords:
         - verification
         - gate
-      usedBy:
-        - index
+      usedBy: []
       dependencies:
         - circuit-breaker
       adaptability:
@@ -8438,6 +8477,75 @@ entities:
         extensionPoints: []
       checksum: sha256:3b09f8323fab171e3aaa7a3a079b6cd65f6fd5775e661c24c295a4775cb31a68
       lastVerified: '2026-02-11T02:17:11.045Z'
+    registry-facade:
+      path: .aios-core/core/registry/registry-facade.js
+      type: module
+      purpose: Entity at .aios-core/core/registry/registry-facade.js
+      keywords:
+        - registry
+        - facade
+      usedBy: []
+      dependencies:
+        - registry-loader
+        - workflow-registry
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:174f6124c1912a58925243c9f2d641c13f7fa0c19188b8bfe3c6713d5b64e05b
+      lastVerified: '2026-07-12T22:41:46.127Z'
+    memory-query:
+      path: .aios-core/core/memory/memory-query.js
+      type: module
+      purpose: 'string, score: number}>>}'
+      keywords:
+        - memory
+        - query
+      usedBy:
+        - context-injector
+        - subagent-dispatcher
+      dependencies:
+        - pattern-store
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:a96b7b318e3b9f61ab3d0adf3b08494ac9b00d6d013787769e410067e42575a0
+      lastVerified: '2026-07-12T22:47:15.385Z'
+    session-memory:
+      path: .aios-core/core/memory/session-memory.js
+      type: module
+      purpose: Entity at .aios-core/core/memory/session-memory.js
+      keywords:
+        - session
+        - memory
+      usedBy:
+        - context-injector
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:106053f8bf9965d9426d2203756ff8b154eb58c78043eac8a066b91787e26599
+      lastVerified: '2026-07-12T22:47:15.385Z'
+    entrypoint:
+      path: .aios-core/core/orchestration/entrypoint.js
+      type: module
+      purpose: Entity at .aios-core/core/orchestration/entrypoint.js
+      keywords:
+        - entrypoint
+      usedBy:
+        - index
+      dependencies:
+        - workflow-orchestrator
+        - master-orchestrator
+        - bob-orchestrator
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:db224469d08f2b0ae8b9e4961b950fc6325ba5cacab04047c8fb6f0eb0c6b614
+      lastVerified: '2026-07-12T22:47:15.385Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md
