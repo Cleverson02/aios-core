@@ -251,13 +251,46 @@ Upgrade do `ideation-engine.js` de heurísticas locais para inteligência com co
 
 O detalhamento em stories está no épico: `docs/stories/epics/epic-aios-workspace-brain/epic-aios-workspace-brain.md`.
 
-## 8. Decisões em aberto (para o owner validar)
+## 8. Decisões em aberto — recomendações adotadas como padrão
 
-1. **Nome do produto** — "AIOS Workspace Brain"? "Synkra Brain"? (marketing à parte, o codinome interno usado aqui é `workspace-brain`).
-2. **O que é open-source vs pro** — sugestão: workspace + router no core; brain semântico, radar e gateway no pro.
-3. **Embeddings locais vs API** — sugestão: local por padrão (privacidade), API opt-in para qualidade maior.
-4. **Telegram primeiro ou multi-canal desde o início** — sugestão: Telegram primeiro (você pediu), interface de canal plugável para WhatsApp/Slack depois.
-5. **Onde o Grok entra via API** — direto na API xAI ou via Cursor CLI (o modelo foi co-treinado com Cursor); sugestão: API xAI direto, mais controle.
+> **Como validar:** responda no chat (ou edite esta seção) confirmando ou trocando cada item. Sem contramanifestação, as recomendações abaixo valem como decisão.
+
+| # | Decisão | Recomendação adotada | Alternativas |
+|---|---------|---------------------|--------------|
+| 1 | **Nome/brand** | **AIOX Cortex** — mantém a herança AIOS→AIOX + "Cortex" (o córtex é o cérebro executivo: quem sabe, decide e coordena). Curto, funciona em PT/EN, npm `@aiox/cortex` | *Synkra Nexus* (ponto que conecta tudo), *AIOX Atlas* (quem mapeia e carrega o mundo), *AIOX Hive* (mente coletiva de agentes) |
+| 2 | **Open-source vs Pro** | Workspace + Router no **core aberto** (adoção/comunidade); Brain semântico, Radar e Gateway Telegram na **Pro** (diferencial pago — a infra `aios-pro-cli` já existe) | Tudo aberto (máxima adoção); tudo Pro (máximo controle) |
+| 3 | **Embeddings** | **Local por padrão, API opt-in** — nenhum documento da empresa sai da máquina na indexação; quem quiser qualidade máxima ativa API explicitamente | Sempre local; sempre API |
+| 4 | **Canal remoto** | **Telegram primeiro**, com interface de canal plugável para WhatsApp/Slack depois | Multi-canal desde o início |
+| 5 | **Integração Grok** | **API xAI direta** (mais controle, sem dependência do Cursor) | Via Cursor CLI |
+
+## 9. Onde o AIOX vive: repositórios, instalação e distribuição
+
+Plano de armazenamento e distribuição (do desenvolvimento até a equipe e testers externos):
+
+### 9.1 No GitHub (fonte da verdade)
+
+| Estágio | Local | Papel |
+|---|---|---|
+| **Agora (validação)** | `Cleverson02/aios-core`, branch `claude/aiox-workspace-orchestration-lv9gzt` | Onde esta proposta e o épico WSB estão. PRs de desenvolvimento partem daqui |
+| **Fase 0-2 (construção)** | Mesmo fork, branches `feat/wsb-*` mergeadas na `main` do fork | Desenvolvimento story-driven normal |
+| **A partir da Fase 5 (produto)** | **Repositório dedicado `Cleverson02/aiox-cortex`** (depois, org própria ex.: `aiox-ai/cortex`) | Identidade própria, releases versionados via semantic-release, issues/discussões de testers separadas do upstream SynkraAI |
+| **Camada Pro** | Repo privado `aiox-cortex-pro` (mesmo modelo do submodule `pro/` atual) | Brain semântico, Radar, Gateway — acesso por licença |
+
+### 9.2 No computador (do owner e da equipe)
+
+| O quê | Onde | Observação |
+|---|---|---|
+| Clone de desenvolvimento | `~/dev/aiox-cortex` (ou onde preferir) | É onde se trabalha nas stories |
+| Instalação Pro existente | `/projeto/scout` | Permanece como instância de teste real (brownfield) — o upgrade da Fase 5 (WSB-5.3) valida contra ela |
+| Instalação nos projetos da equipe | Cada projeto recebe `.aios-core/` via installer, como hoje | Nada muda no fluxo mental de quem já usa AIOS |
+| Workspace Brain (dados) | `~/.aiox/` (índice, grafo, digests) + `workspace.yaml` na raiz do workspace | Fora dos repositórios git — conhecimento da empresa não vai para o GitHub |
+
+### 9.3 Distribuição para equipe e testers
+
+1. **Curto prazo (antes do npm):** instalação direto do GitHub — `npx github:Cleverson02/aios-core install` (o installer atual suporta; testers precisam apenas de acesso ao repo).
+2. **Médio prazo:** publicar no npm como `@aiox/cortex` → equipe/testers rodam `npx @aiox/cortex install` (mesmo fluxo do `npx aios-core install` de hoje, manifest hasheado e upgrade brownfield inclusos).
+3. **Pro:** ativação via CLI de licença (`aiox pro activate <key>`), reaproveitando o `packages/aios-pro-cli`.
+4. **Squads extras** (os que hoje diferenciam sua instalação em `/projeto/scout`): empacotados como pacotes npm de squad, instaláveis por `aiox squad add <nome>` — assim testers recebem exatamente o mesmo ambiente seu.
 
 ---
 
