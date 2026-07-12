@@ -1,0 +1,23 @@
+# workspace.yaml — o "mapa-mãe" que o cérebro do AIOX lê primeiro.
+# Convenção de pastas (modelo PARA): docs/proposals/aios-workspace-brain/guia-estrutura-workspace.md
+#
+# Tiers e permissões de escrita dos agentes:
+#   projects   → leitura + escrita via story
+#   areas      → leitura + escrita com aprovação (surface decision)
+#   resources  → leitura apenas (só humanos escrevem)
+#   archives   → leitura apenas (indexação fria)
+#
+# path aceita: relativo (ao dir deste arquivo), absoluto ou ~ (home).
+# name é opcional — deriva do basename do path quando omitido.
+workspace:
+  name: "{{WORKSPACE_NAME}}"
+  version: 1
+  roots:
+    projects: []
+    areas:
+      - path: ./02-areas/exemplo
+    resources: []
+    archives:
+      - path: ./04-archives
+  permissions:
+    default: read

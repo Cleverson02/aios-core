@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://synkra.ai/schemas/workspace.json",
+  "title": "AIOX Workspace Manifest",
+  "description": "Schema for workspace.yaml — the multi-root PARA manifest that the AIOX brain reads first.",
+  "type": "object",
+  "required": ["workspace"],
+  "additionalProperties": false,
+  "properties": {
+    "workspace": {
+      "type": "object",
+      "required": ["name", "roots"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable workspace name (e.g. the company name)."
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Manifest schema version."
+        },
+        "roots": {
+          "type": "object",
+          "additionalProperties": false,
+          "minProperties": 1,
+          "description": "PARA tiers. Each tier holds a list of root entries.",
+          "properties": {
+            "projects": { "$ref": "#/definitions/rootList" },
+            "areas": { "$ref": "#/definitions/rootList" },
+            "resources": { "$ref": "#/definitions/rootList" },
+            "archives": { "$ref": "#/definitions/rootList" }
+          }
+        },
+        "permissions": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "default": {
+              "type": "string",
+              "enum": ["read", "write"],
+              "description": "Default permission posture for the workspace."
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "rootList": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/rootEntry" }
+    },
+    "rootEntry": {
+      "type": "object",
+      "required": ["path"],
+      "additionalProperties": false,
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path to the root. Accepts relative (to the manifest dir), absolute, or ~-prefixed."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional root name. Derived from the path basename when omitted."
+        },
+        "aios": {
+          "type": "boolean",
+          "description": "Whether this root has an .aios-core install (a code project)."
+        }
+      }
+    }
+  }
+}
