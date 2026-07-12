@@ -1,7 +1,7 @@
 # AIOS Workspace Brain — Análise e Blueprint Arquitetural
 
-> **Codinome:** AIOS Turbinado / Workspace Brain
-> **Status:** Proposta (aguardando validação do owner)
+> **Produto:** AIOX Cortex (nome confirmado pelo owner; grafia alternativa aceita: Cortex-AIOX)
+> **Status:** ✅ VALIDADA — 5 decisões confirmadas pelo owner em 2026-07-12
 > **Data:** 2026-07-12
 > **Autores:** Análise técnica assistida por IA sobre o código real do aios-core v4.0.0
 > **Épico relacionado:** `docs/stories/epics/epic-aios-workspace-brain/`
@@ -251,17 +251,17 @@ Upgrade do `ideation-engine.js` de heurísticas locais para inteligência com co
 
 O detalhamento em stories está no épico: `docs/stories/epics/epic-aios-workspace-brain/epic-aios-workspace-brain.md`.
 
-## 8. Decisões em aberto — recomendações adotadas como padrão
+## 8. Decisões — ✅ CONFIRMADAS pelo owner em 2026-07-12
 
-> **Como validar:** responda no chat (ou edite esta seção) confirmando ou trocando cada item. Sem contramanifestação, as recomendações abaixo valem como decisão.
+> Todas as 5 decisões abaixo foram validadas pelo owner. Alterações futuras exigem amendment (processo de governança da Constitution).
 
-| # | Decisão | Recomendação adotada | Alternativas |
+| # | Decisão | Decisão confirmada | Alternativas descartadas |
 |---|---------|---------------------|--------------|
-| 1 | **Nome/brand** | **AIOX Cortex** — mantém a herança AIOS→AIOX + "Cortex" (o córtex é o cérebro executivo: quem sabe, decide e coordena). Curto, funciona em PT/EN, npm `@aiox/cortex` | *Synkra Nexus* (ponto que conecta tudo), *AIOX Atlas* (quem mapeia e carrega o mundo), *AIOX Hive* (mente coletiva de agentes) |
-| 2 | **Open-source vs Pro** | Workspace + Router no **core aberto** (adoção/comunidade); Brain semântico, Radar e Gateway Telegram na **Pro** (diferencial pago — a infra `aios-pro-cli` já existe) | Tudo aberto (máxima adoção); tudo Pro (máximo controle) |
-| 3 | **Embeddings** | **Local por padrão, API opt-in** — nenhum documento da empresa sai da máquina na indexação; quem quiser qualidade máxima ativa API explicitamente | Sempre local; sempre API |
-| 4 | **Canal remoto** | **Telegram primeiro**, com interface de canal plugável para WhatsApp/Slack depois | Multi-canal desde o início |
-| 5 | **Integração Grok** | **API xAI direta** (mais controle, sem dependência do Cursor) | Via Cursor CLI |
+| 1 | **Nome/brand** | **AIOX Cortex** ✅ — herança AIOS→AIOX + "Cortex" (o córtex é o cérebro executivo: quem sabe, decide e coordena). npm `@aiox/cortex` | *Synkra Nexus*, *AIOX Atlas*, *AIOX Hive* |
+| 2 | **Open-source vs Pro** | ✅ Workspace + Router no **core aberto** (adoção/comunidade); Brain semântico, Radar e Gateway Telegram na **Pro** (diferencial pago — a infra `aios-pro-cli` já existe) | Tudo aberto; tudo Pro |
+| 3 | **Embeddings** | ✅ **Local por padrão, API opt-in** — nenhum documento da empresa sai da máquina na indexação; quem quiser qualidade máxima ativa API explicitamente | Sempre local; sempre API |
+| 4 | **Canal remoto** | ✅ **Telegram primeiro**, com interface de canal plugável para WhatsApp/Slack depois | Multi-canal desde o início |
+| 5 | **Integração Grok** | ✅ **API xAI direta** (mais controle, sem dependência do Cursor) | Via Cursor CLI |
 
 ## 9. Onde o AIOX vive: repositórios, instalação e distribuição
 

@@ -1,7 +1,9 @@
-# Epic: AIOS Workspace Brain (WSB)
+# Epic: AIOX Cortex — Workspace Brain (WSB)
+
+> **Produto:** AIOX Cortex (nome confirmado pelo owner em 2026-07-12)
 
 **Epic ID:** WSB
-**Status:** Draft (aguardando validação do owner)
+**Status:** Approved (5 decisões da proposta confirmadas pelo owner em 2026-07-12)
 **Priority:** High
 **Proposta completa:** `docs/proposals/aios-workspace-brain/proposta-aios-workspace-brain.md`
 **Constitution:** Art. I (CLI First) e Art. III (Story-Driven) aplicam-se a todas as stories
