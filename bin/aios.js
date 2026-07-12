@@ -91,6 +91,16 @@ CONFIGURATION:
   aios config validate                   # Validate config files
   aios config init-local                 # Create local-config.yaml
 
+WORKSPACE (AIOX Cortex):
+  aios workspace init                    # Scaffold workspace.yaml (PARA structure)
+  aios workspace add <path> --tier areas # Add a root to the workspace
+  aios workspace status                  # Show roots, tiers and permissions
+
+BRAIN (AIOX Cortex):
+  aios brain index                       # Index workspace roots (incremental)
+  aios brain ask "<query>" [--area X]    # Search knowledge with cited sources
+  aios brain status                      # Index stats
+
 SERVICE DISCOVERY:
   aios workers search <query>            # Search for workers
   aios workers search "json" --category=data
@@ -1032,6 +1042,28 @@ async function main() {
         await run(process.argv);
       } catch (error) {
         console.error(`❌ Pro command error: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+
+    case 'workspace':
+      // Workspace Manager (PARA multi-root) - Story WSB-1.1
+      try {
+        const { workspaceCommand } = require('../.aios-core/core/workspace');
+        await workspaceCommand(args.slice(1));
+      } catch (error) {
+        console.error(`❌ Workspace command error: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+
+    case 'brain':
+      // Brain Indexer (workspace knowledge) - Story WSB-1.2
+      try {
+        const { brainCommand } = require('../.aios-core/core/brain');
+        await brainCommand(args.slice(1));
+      } catch (error) {
+        console.error(`❌ Brain command error: ${error.message}`);
         process.exit(1);
       }
       break;
