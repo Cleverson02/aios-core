@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-12T23:22:55.593Z'
-  entityCount: 495
+  lastUpdated: '2026-07-12T23:42:02.326Z'
+  entityCount: 498
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -5983,23 +5983,22 @@ entities:
       checksum: sha256:74ac4edc22f53a6e1ff7fe7d16add65b4e85e198dcdd0f54d3048ba032dc8f9a
       lastVerified: '2026-02-08T13:33:24.327Z'
     index:
-      path: .aios-core/core/brain/index.js
+      path: .aios-core/core/brain/semantic/index.js
       type: module
-      purpose: Entity at .aios-core/core/brain/index.js
+      purpose: Entity at .aios-core/core/brain/semantic/index.js
       keywords:
         - index
       usedBy: []
       dependencies:
-        - indexer
-        - cli
-        - chunker
-        - lexical-search
+        - vector-provider
+        - semantic-store
+        - hybrid-search
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:af9f379cbb6bd80933be4c0c62e9943ccbfcafa20dcf91e2f16ae603d18aa397
-      lastVerified: '2026-07-12T23:22:55.591Z'
+      checksum: sha256:68ec12669920b1adea8de091e0b6f329bb8cc5f0d837cbc5491ef06e39126e28
+      lastVerified: '2026-07-12T23:42:02.324Z'
     config-cache:
       path: .aios-core/core/config/config-cache.js
       type: module
@@ -8499,8 +8498,7 @@ entities:
       purpose: Entity at .aios-core/core/brain/cli.js
       keywords:
         - cli
-      usedBy:
-        - index
+      usedBy: []
       dependencies:
         - indexer
       adaptability:
@@ -8569,7 +8567,6 @@ entities:
       keywords:
         - chunker
       usedBy:
-        - index
         - indexer
       dependencies: []
       adaptability:
@@ -8585,7 +8582,6 @@ entities:
       keywords:
         - indexer
       usedBy:
-        - index
         - cli
       dependencies:
         - chunker
@@ -8605,8 +8601,8 @@ entities:
         - lexical
         - search
       usedBy:
-        - index
         - indexer
+        - hybrid-search
       dependencies: []
       adaptability:
         score: 0.4
@@ -8614,6 +8610,61 @@ entities:
         extensionPoints: []
       checksum: sha256:0c4fc9f5ea64568b8b3a1cf7739069327fc43e0e43c1283895c6565fe18e8d91
       lastVerified: '2026-07-12T23:22:55.592Z'
+    hybrid-search:
+      path: .aios-core/core/brain/semantic/hybrid-search.js
+      type: module
+      purpose: Entity at .aios-core/core/brain/semantic/hybrid-search.js
+      keywords:
+        - hybrid
+        - search
+      usedBy:
+        - index
+      dependencies:
+        - lexical-search
+        - vector-provider
+        - semantic-store
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:3124038de28663e302d1102be8eb13828c96120d1ef7d0792c0a6a8a004a0aab
+      lastVerified: '2026-07-12T23:42:02.324Z'
+    semantic-store:
+      path: .aios-core/core/brain/semantic/semantic-store.js
+      type: module
+      purpose: Entity at .aios-core/core/brain/semantic/semantic-store.js
+      keywords:
+        - semantic
+        - store
+      usedBy:
+        - index
+        - hybrid-search
+      dependencies:
+        - vector-provider
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:5af60d186c6457f8795439f6ec89122a8f30b5ac04c166f28656c0233142e2b4
+      lastVerified: '2026-07-12T23:42:02.325Z'
+    vector-provider:
+      path: .aios-core/core/brain/semantic/vector-provider.js
+      type: module
+      purpose: Entity at .aios-core/core/brain/semantic/vector-provider.js
+      keywords:
+        - vector
+        - provider
+      usedBy:
+        - index
+        - hybrid-search
+        - semantic-store
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:ab7f8e7ddd3f70c79d647af50d49ae0a5d1f1a074a5cd793edadeaf4ab29dd40
+      lastVerified: '2026-07-12T23:42:02.325Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md

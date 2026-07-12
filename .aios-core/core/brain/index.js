@@ -18,6 +18,8 @@ const { BrainIndexer } = require('./indexer');
 const { brainCommand } = require('./cli');
 const { chunkFile } = require('./chunker');
 const { buildIndex, searchIndex, tokenize } = require('./lexical-search');
+const semantic = require('./semantic');
+const entities = require('./entities');
 
 module.exports = {
   BrainIndexer,
@@ -26,4 +28,8 @@ module.exports = {
   buildIndex,
   searchIndex,
   tokenize,
+  // WSB-1.3 — semantic layer (providers, vector store, semantic/hybrid search)
+  semantic,
+  // WSB-1.4 — business entity graph (store, extractor, graph, queries, CLI)
+  entities,
 };

@@ -9,12 +9,13 @@
  * Command handler for `aios brain <index|ask|status>`. Wiring into bin/aios.js
  * is done by the lead; this module only exposes `brainCommand(args)`.
  *
- *   aios brain index [--full]                 → (re)build the index
- *   aios brain ask <query> [--area X] [--tier Y]  → scoped lexical search
+ *   aios brain index [--full] [--vectors]     → (re)build the index (+ vectors)
+ *   aios brain ask <query> [--area X] [--tier Y] [--semantic|--hybrid]
+ *   aios brain entities <list|show|add|link|scan> …
  *   aios brain status                         → index statistics
  *
  * @author @dev (Dex)
- * @version 1.0.0
+ * @version 1.1.0
  */
 
 const chalk = require('chalk');
@@ -41,6 +42,9 @@ async function brainCommand(args = []) {
     case 'ask':
     case 'search':
       return runAsk(indexer, positionals, flags);
+    case 'entities':
+      // WSB-1.4 — entitiesCommand parses its own argv slice
+      return require('./entities').entitiesCommand(rest, { brainDir: indexer.brainDir });
     case 'status':
     case 'stats':
       return runStatus(indexer);
@@ -79,6 +83,18 @@ async function runIndex(indexer, flags) {
   for (const warning of result.warnings) {
     console.log(chalk.yellow(`  ⚠ ${warning}`));
   }
+
+  if (flags.vectors) {
+    const { buildVectors } = require('./semantic');
+    const vec = await buildVectors(indexer.brainDir);
+    console.log(
+      chalk.green('✔ Vetores semânticos') +
+        chalk.dim(
+          ` — ${vec.embedded} embedados, ${vec.reused} reusados, ` +
+            `${vec.removed} removidos, ${vec.durationMs}ms`,
+        ),
+    );
+  }
   return 0;
 }
 
@@ -97,11 +113,21 @@ async function runAsk(indexer, positionals, flags) {
     return 1;
   }
 
-  const results = await indexer.search(query, {
+  const searchOptions = {
     limit: flags.limit ? Number(flags.limit) : 10,
     area: flags.area,
     tier: flags.tier,
-  });
+  };
+
+  let results;
+  if (flags.semantic || flags.hybrid) {
+    const { semanticSearch, hybridSearch } = require('./semantic');
+    results = flags.semantic
+      ? await semanticSearch(indexer.brainDir, query, searchOptions)
+      : await hybridSearch(indexer.brainDir, query, searchOptions);
+  } else {
+    results = await indexer.search(query, searchOptions);
+  }
 
   if (!results.length) {
     console.log(chalk.yellow(`Nenhum resultado para "${query}".`));
@@ -113,7 +139,11 @@ async function runAsk(indexer, positionals, flags) {
     // r.file is root-relative and already starts with the area segment when
     // the area was derived from the path — print tags instead of a prefix.
     const source = `${r.file}${r.heading ? `#${r.heading}` : ''}`;
-    const tags = [r.area && `area: ${r.area}`, r.tier && `tier: ${r.tier}`]
+    const tags = [
+      r.area && `area: ${r.area}`,
+      r.tier && `tier: ${r.tier}`,
+      r.matchType && r.matchType !== 'lexical' && r.matchType,
+    ]
       .filter(Boolean)
       .join(', ');
     console.log(chalk.bold(source) + chalk.dim(`  (${tags ? `${tags}, ` : ''}score ${r.score})`));
@@ -184,9 +214,10 @@ function parseArgs(argv) {
  * Print usage help.
  */
 function printUsage() {
-  console.log(chalk.bold('aios brain') + ' — cérebro léxico do workspace\n');
-  console.log('  ' + chalk.cyan('index [--full]') + '                    (re)constrói o índice');
-  console.log('  ' + chalk.cyan('ask <query> [--area X] [--tier Y]') + ' busca escopada com fonte');
+  console.log(chalk.bold('aios brain') + ' — cérebro do workspace\n');
+  console.log('  ' + chalk.cyan('index [--full] [--vectors]') + '        (re)constrói o índice (+ vetores semânticos)');
+  console.log('  ' + chalk.cyan('ask <query> [--area X] [--tier Y] [--semantic|--hybrid]'));
+  console.log('  ' + chalk.cyan('entities <list|show|add|link|scan>') + ' grafo de entidades do negócio');
   console.log('  ' + chalk.cyan('status') + '                            estatísticas do índice');
 }
 
