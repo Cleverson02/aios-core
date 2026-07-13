@@ -13,6 +13,8 @@ const {
   getProvidersStatus,
   ClaudeProvider,
   GeminiProvider,
+  CodexProvider,
+  GrokProvider,
 } = require('../../../.aios-core/infrastructure/integrations/ai-providers/ai-provider-factory');
 
 describe('AI Provider Factory', () => {
@@ -28,6 +30,18 @@ describe('AI Provider Factory', () => {
       const provider = new GeminiProvider();
       expect(provider.name).toBe('gemini');
     });
+
+    it('should export CodexProvider class', () => {
+      expect(CodexProvider).toBeDefined();
+      const provider = new CodexProvider();
+      expect(provider.name).toBe('codex');
+    });
+
+    it('should export GrokProvider class', () => {
+      expect(GrokProvider).toBeDefined();
+      const provider = new GrokProvider();
+      expect(provider.name).toBe('grok');
+    });
   });
 
   describe('getProvider', () => {
@@ -41,6 +55,18 @@ describe('AI Provider Factory', () => {
       const provider = getProvider('gemini');
       expect(provider).toBeDefined();
       expect(provider.name).toBe('gemini');
+    });
+
+    it('should return codex provider', () => {
+      const provider = getProvider('codex');
+      expect(provider).toBeDefined();
+      expect(provider.name).toBe('codex');
+    });
+
+    it('should return grok provider', () => {
+      const provider = getProvider('grok');
+      expect(provider).toBeDefined();
+      expect(provider.name).toBe('grok');
     });
 
     it('should throw error for unknown provider', () => {

@@ -10,6 +10,8 @@
 const { AIProvider } = require('./ai-provider');
 const { ClaudeProvider } = require('./claude-provider');
 const { GeminiProvider } = require('./gemini-provider');
+const { CodexProvider } = require('./codex-provider');
+const { GrokProvider } = require('./grok-provider');
 const {
   getProvider,
   getPrimaryProvider,
@@ -29,6 +31,8 @@ module.exports = {
   // Provider implementations
   ClaudeProvider,
   GeminiProvider,
+  CodexProvider,
+  GrokProvider,
 
   // Factory functions
   getProvider,

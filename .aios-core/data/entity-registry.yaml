@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-13T04:00:59.674Z'
-  entityCount: 507
+  lastUpdated: '2026-07-13T04:12:19.588Z'
+  entityCount: 510
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -5983,22 +5983,22 @@ entities:
       checksum: sha256:74ac4edc22f53a6e1ff7fe7d16add65b4e85e198dcdd0f54d3048ba032dc8f9a
       lastVerified: '2026-02-08T13:33:24.327Z'
     index:
-      path: .aios-core/core/brain/semantic/index.js
+      path: .aios-core/core/router/index.js
       type: module
-      purpose: Entity at .aios-core/core/brain/semantic/index.js
+      purpose: Entity at .aios-core/core/router/index.js
       keywords:
         - index
       usedBy: []
       dependencies:
-        - vector-provider
-        - semantic-store
-        - hybrid-search
+        - router
+        - matrix-loader
+        - cli
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:68ec12669920b1adea8de091e0b6f329bb8cc5f0d837cbc5491ef06e39126e28
-      lastVerified: '2026-07-13T04:00:59.672Z'
+      checksum: sha256:17fb37b04ef447fd7538e81b015cbc8ea00490459bf7ea68ea89d82cfdacf452
+      lastVerified: '2026-07-13T04:12:19.587Z'
     config-cache:
       path: .aios-core/core/config/config-cache.js
       type: module
@@ -7084,6 +7084,7 @@ entities:
         - classifier
       usedBy:
         - gemini-model-selector
+        - router
       dependencies: []
       adaptability:
         score: 0.4
@@ -8496,24 +8497,21 @@ entities:
       checksum: sha256:db224469d08f2b0ae8b9e4961b950fc6325ba5cacab04047c8fb6f0eb0c6b614
       lastVerified: '2026-07-12T22:47:15.385Z'
     cli:
-      path: .aios-core/core/brain/cli.js
+      path: .aios-core/core/router/cli.js
       type: module
-      purpose: Entity at .aios-core/core/brain/cli.js
+      purpose: Entity at .aios-core/core/router/cli.js
       keywords:
         - cli
-      usedBy: []
+      usedBy:
+        - index
       dependencies:
-        - indexer
-        - entities
-        - digest
-        - semantic
-        - hot-index
+        - router
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:c63a8571345ee1c53b7cb2be34c64551c5e8fe341bdae74260443bb0b82a713f
-      lastVerified: '2026-07-13T04:00:59.669Z'
+      checksum: sha256:8cb2df71d69fd24d6eb7203206fda77b33a2f0ce97251296d4fd3f9dbf817d4e
+      lastVerified: '2026-07-13T04:12:19.587Z'
     area-index-template:
       path: .aios-core/core/workspace/templates/area-index-template.md
       type: module
@@ -8589,7 +8587,6 @@ entities:
       keywords:
         - indexer
       usedBy:
-        - cli
         - digest
       dependencies:
         - chunker
@@ -8625,8 +8622,7 @@ entities:
       keywords:
         - hybrid
         - search
-      usedBy:
-        - index
+      usedBy: []
       dependencies:
         - lexical-search
         - vector-provider
@@ -8645,7 +8641,6 @@ entities:
         - semantic
         - store
       usedBy:
-        - index
         - hybrid-search
       dependencies:
         - vector-provider
@@ -8663,7 +8658,6 @@ entities:
         - vector
         - provider
       usedBy:
-        - index
         - hybrid-search
         - semantic-store
       dependencies: []
@@ -8772,7 +8766,6 @@ entities:
         - hot
         - index
       usedBy:
-        - cli
         - l8-workspace-knowledge
       dependencies:
         - workspace
@@ -8822,8 +8815,7 @@ entities:
       purpose: 'typeof flags.summary === ''string'' ? flags.summary : undefined,'
       keywords:
         - digest
-      usedBy:
-        - cli
+      usedBy: []
       dependencies:
         - session-memory
         - gotchas-memory
@@ -8835,6 +8827,60 @@ entities:
         extensionPoints: []
       checksum: sha256:e76b691d259079c15ffb3467951e6711dfcda440f68dbf0102206a4b84c9165c
       lastVerified: '2026-07-13T04:00:59.670Z'
+    capability-matrix:
+      path: .aios-core/core/router/capability-matrix.yaml
+      type: module
+      purpose: '''Melhor match de capacidade para a categoria, ignorando custo (mais strengths relevantes vencem).'''
+      keywords:
+        - capability
+        - matrix
+        - aiox
+        - cortex
+        - llm
+      usedBy: []
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:9f5dee9859b56c44062a25b8f1d3135676b58fa79f9c3645026bdeaeaf7ecdb5
+      lastVerified: '2026-07-13T04:12:19.586Z'
+    matrix-loader:
+      path: .aios-core/core/router/matrix-loader.js
+      type: module
+      purpose: Entity at .aios-core/core/router/matrix-loader.js
+      keywords:
+        - matrix
+        - loader
+      usedBy:
+        - index
+        - router
+      dependencies:
+        - capability-matrix-schema
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:1e97730f71e5b24f9d9bc75ee2deb77b783b1f4bdacf81013cc66b1a2774a844
+      lastVerified: '2026-07-13T04:12:19.587Z'
+    router:
+      path: .aios-core/core/router/router.js
+      type: module
+      purpose: text }).level;
+      keywords:
+        - router
+      usedBy:
+        - index
+        - cli
+      dependencies:
+        - matrix-loader
+        - task-complexity-classifier
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:32c5741b038f754a598b536bd5f79ed8e616a9954b80ffa114098c1c9403b68e
+      lastVerified: '2026-07-13T04:12:19.587Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md
