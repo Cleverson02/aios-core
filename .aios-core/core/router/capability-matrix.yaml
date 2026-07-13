@@ -1,0 +1,71 @@
+# AIOX Cortex — LLM Capability Matrix
+#
+# Versioned, human-editable source of truth for multi-model routing.
+# Story WSB-2.1 — adding a new model here (or a project override in
+# `.aios/capability-matrix.yaml`) makes it routable WITHOUT code changes.
+#
+# Facts as of July/2026 (see docs/proposals/aios-workspace-brain, §2 e §4.3):
+#   - xAI Grok 4.5 (08/07/2026): co-trained with Cursor, ~2x token efficiency,
+#     US$2/M in, US$6/M out — "comparable to Opus 4.7, faster and cheaper".
+#   - OpenAI GPT-5.5 Codex: strongest agentic coding (82.7% Terminal-Bench 2.0).
+#   - Anthropic Claude Opus 4.8 + Claude 5 (Fable 5): top general capability.
+#
+# @see .aios-core/core/router/capability-matrix-schema.json (validation)
+# @see .aios-core/core/router/matrix-loader.js (load + merge + semantic checks)
+
+version: 1
+
+models:
+  claude-opus-4-8:
+    provider: anthropic
+    strengths: [reasoning, architecture, long-context, writing, code-review, security]
+    cost_tier: high
+    speed_tier: medium
+    notes: 'Topo de capacidade geral; reservado para decisões de arquitetura e review crítico.'
+
+  gpt-5.5-codex:
+    provider: openai
+    strengths: [agentic-coding, terminal, refactor-scale, computer-use, test-generation]
+    cost_tier: medium
+    speed_tier: medium
+    notes: 'Modelo agêntico de coding mais forte da OpenAI (82,7% Terminal-Bench 2.0).'
+
+  grok-4-5:
+    provider: xai
+    strengths: [coding-speed, token-efficiency, long-repo-context, test-generation, bulk-refactor]
+    cost_tier: low
+    speed_tier: fast
+    notes: 'Co-treinado com Cursor; ~2x token efficiency; $2/M in, $6/M out.'
+
+  gemini-2.x:
+    provider: google
+    strengths: [long-context-bulk, multimodal, research-summarize]
+    cost_tier: low
+    speed_tier: fast
+    notes: 'Barato para volume de contexto longo e multimodal; já suportado pelo dispatcher atual.'
+
+# Policies decide the model when a task category maps to `policy:<name>` (or when
+# the caller passes `{ policy }` explicitly). See router.js for the exact algorithm.
+routing_policies:
+  quality-first:
+    description: 'Melhor match de capacidade para a categoria, ignorando custo (mais strengths relevantes vencem).'
+  cost-first:
+    description: 'Menor cost_tier (low<medium<high) entre os modelos que cobrem a categoria; desempate por velocidade. Tarefas "complex" sobem um tier.'
+  speed-first:
+    description: 'Maior speed_tier (fast<medium<slow) entre os modelos que cobrem a categoria; desempate por custo.'
+
+# Default policy applied when a category maps to `policy:default`.
+default_policy: cost-first
+
+# Task category → direct model OR `policy:<name>`. `default` is the fallback
+# category used when the classifier finds no keyword match.
+task_routing:
+  architecture-decision: claude-opus-4-8
+  code-review: claude-opus-4-8
+  security-review: claude-opus-4-8
+  bulk-refactor: grok-4-5
+  test-generation: grok-4-5
+  agentic-coding: gpt-5.5-codex
+  research-summarize: gemini-2.x
+  story-implementation: policy:cost-first
+  default: policy:default
