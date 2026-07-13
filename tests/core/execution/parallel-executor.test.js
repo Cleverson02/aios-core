@@ -1,12 +1,47 @@
 /**
  * Parallel Executor Tests
  * Story GEMINI-INT.17
+ * Story WSB-2.4 - Cross-Vendor Consensus (N-provider modes)
  */
+
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+
+// Registry populated per-test; the mocked factory resolves from it.
+const mockProviders = {};
+
+jest.mock(
+  '../../../.aios-core/infrastructure/integrations/ai-providers/ai-provider-factory',
+  () => ({
+    getProvider: (name) => {
+      if (!mockProviders[name]) {
+        throw new Error(`Unknown AI provider: ${name}`);
+      }
+      return mockProviders[name];
+    },
+  }),
+);
 
 const {
   ParallelExecutor,
   ParallelMode,
+  CONSENSUS_PRESETS,
 } = require('../../../.aios-core/core/execution/parallel-executor');
+
+/**
+ * Build a mock provider.
+ * @param {Object} opts - { available, success, output, error }
+ * @returns {Object} Mock provider with checkAvailability + execute
+ */
+function makeProvider({ available = true, success = true, output = '', error } = {}) {
+  return {
+    checkAvailability: jest.fn().mockResolvedValue(available),
+    execute: jest
+      .fn()
+      .mockResolvedValue(success ? { success: true, output } : { success: false, error: error || 'failed' }),
+  };
+}
 
 describe('ParallelExecutor', () => {
   let executor;
@@ -199,5 +234,211 @@ describe('ParallelExecutor', () => {
 
       expect(result.success).toBe(true);
     }, 10000);
+  });
+
+  // ===========================================================================
+  // Story WSB-2.4 — Cross-Vendor Consensus (N-provider API)
+  // ===========================================================================
+  describe('executeWithProviders (N-provider)', () => {
+    beforeEach(() => {
+      for (const key of Object.keys(mockProviders)) {
+        delete mockProviders[key];
+      }
+    });
+
+    it('exposes the critical-review preset', () => {
+      expect(CONSENSUS_PRESETS['critical-review']).toEqual(['claude', 'codex', 'grok']);
+    });
+
+    it('3-way CONSENSUS: simple majority 2-1 wins', async () => {
+      mockProviders.claude = makeProvider({ output: 'Use PostgreSQL for the store' });
+      mockProviders.codex = makeProvider({ output: 'Use PostgreSQL for the store' });
+      mockProviders.grok = makeProvider({ output: 'Prefer MongoDB document database instead' });
+
+      const exec = new ParallelExecutor();
+      const result = await exec.executeWithProviders(['claude', 'codex', 'grok'], 'Which DB?', {
+        mode: ParallelMode.CONSENSUS,
+        decisionLog: false,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.consensus).toBe(true);
+      expect(result.votes).toHaveLength(3);
+      // Majority group has claude + codex sharing the same group id.
+      const claudeVote = result.votes.find((v) => v.provider === 'claude');
+      const codexVote = result.votes.find((v) => v.provider === 'codex');
+      const grokVote = result.votes.find((v) => v.provider === 'grok');
+      expect(claudeVote.group).toBe(codexVote.group);
+      expect(grokVote.group).not.toBe(claudeVote.group);
+      expect(['claude', 'codex']).toContain(result.winner.provider);
+      expect(result.tiebreak).toBeUndefined();
+    });
+
+    it('3-way CONSENSUS: 1-1-1 tie broken by BEST_OF scoring', async () => {
+      mockProviders.claude = makeProvider({ output: 'Alpha approach' });
+      mockProviders.codex = makeProvider({ output: 'Beta entirely separate reasoning here' });
+      mockProviders.grok = makeProvider({
+        output:
+          'Gamma detailed recommendation with a concrete example:\n```js\nconst x = compute();\n```\nThis longer structured answer explains the trade-offs thoroughly for reviewers.',
+      });
+
+      const exec = new ParallelExecutor();
+      const result = await exec.executeWithProviders(['claude', 'codex', 'grok'], 'Approach?', {
+        mode: ParallelMode.CONSENSUS,
+        decisionLog: false,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.consensus).toBe(false);
+      expect(result.tiebreak).toBe('best-of');
+      // grok output is longest + has a code block → highest score.
+      expect(result.selectedProvider).toBe('grok');
+      expect(result.scores).toHaveProperty('grok');
+      // All three formed distinct groups.
+      const groupIds = new Set(result.votes.map((v) => v.group));
+      expect(groupIds.size).toBe(3);
+    });
+
+    it('skips unavailable provider and proceeds with remaining 2', async () => {
+      mockProviders.claude = makeProvider({ output: 'Ship it now' });
+      mockProviders.codex = makeProvider({ output: 'Ship it now' });
+      mockProviders.grok = makeProvider({ available: false });
+
+      const exec = new ParallelExecutor();
+      const result = await exec.executeWithProviders(['claude', 'codex', 'grok'], 'Go?', {
+        mode: ParallelMode.CONSENSUS,
+        decisionLog: false,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.consensus).toBe(true);
+      expect(result.votes).toHaveLength(2);
+      expect(result.skipped).toHaveLength(1);
+      expect(result.skipped[0].name).toBe('grok');
+      expect(mockProviders.grok.execute).not.toHaveBeenCalled();
+    });
+
+    it('returns structured error when fewer than 2 providers are available', async () => {
+      mockProviders.claude = makeProvider({ output: 'only one' });
+      mockProviders.codex = makeProvider({ available: false });
+      mockProviders.grok = makeProvider({ available: false });
+
+      const exec = new ParallelExecutor();
+      const result = await exec.executeWithProviders(['claude', 'codex', 'grok'], 'Go?', {
+        mode: ParallelMode.CONSENSUS,
+        decisionLog: false,
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.code).toBe('INSUFFICIENT_PROVIDERS');
+      expect(result.available).toEqual(['claude']);
+      expect(result.skipped).toHaveLength(2);
+      expect(mockProviders.claude.execute).not.toHaveBeenCalled();
+    });
+
+    it('resolves the critical-review preset from a string argument', async () => {
+      mockProviders.claude = makeProvider({ output: 'Consensus text' });
+      mockProviders.codex = makeProvider({ output: 'Consensus text' });
+      mockProviders.grok = makeProvider({ output: 'Consensus text' });
+
+      const exec = new ParallelExecutor();
+      const result = await exec.executeWithProviders('critical-review', 'Review this', {
+        mode: ParallelMode.CONSENSUS,
+        decisionLog: false,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.votes.map((v) => v.provider).sort()).toEqual(['claude', 'codex', 'grok']);
+    });
+
+    it('unknown provider name is skipped with a reason', async () => {
+      mockProviders.claude = makeProvider({ output: 'A' });
+      mockProviders.codex = makeProvider({ output: 'A' });
+      // 'grok' intentionally not registered → getProvider throws → skipped.
+
+      const exec = new ParallelExecutor();
+      const result = await exec.executeWithProviders(['claude', 'codex', 'grok'], 'Go?', {
+        mode: ParallelMode.CONSENSUS,
+        decisionLog: false,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.skipped.some((s) => s.name === 'grok')).toBe(true);
+    });
+
+    it('RACE mode returns first successful provider (in order)', async () => {
+      mockProviders.claude = makeProvider({ success: false, error: 'boom' });
+      mockProviders.codex = makeProvider({ output: 'codex wins the race' });
+      mockProviders.grok = makeProvider({ output: 'grok also ok' });
+
+      const exec = new ParallelExecutor();
+      const result = await exec.executeWithProviders(['claude', 'codex', 'grok'], 'Race', {
+        mode: ParallelMode.RACE,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.mode).toBe('race');
+      expect(result.selectedProvider).toBe('codex');
+    });
+
+    it('BEST_OF mode picks the highest scored output', async () => {
+      mockProviders.claude = makeProvider({ output: 'short' });
+      mockProviders.codex = makeProvider({
+        output:
+          'A thorough answer with structure:\n```js\ncode();\n```\n- point one\n- point two, complete and done, over one hundred characters long.',
+      });
+      mockProviders.grok = makeProvider({ output: 'medium length answer here' });
+
+      const exec = new ParallelExecutor();
+      const result = await exec.executeWithProviders(['claude', 'codex', 'grok'], 'Best?', {
+        mode: ParallelMode.BEST_OF,
+      });
+
+      expect(result.success).toBe(true);
+      expect(result.mode).toBe('best-of');
+      expect(result.selectedProvider).toBe('codex');
+      expect(result.scores).toHaveProperty('claude');
+    });
+
+    it('writes a consensus decision log to .ai/ under the given cwd', async () => {
+      mockProviders.claude = makeProvider({ output: 'Adopt hexagonal architecture' });
+      mockProviders.codex = makeProvider({ output: 'Adopt hexagonal architecture' });
+      mockProviders.grok = makeProvider({ output: 'Use a simple layered monolith instead' });
+
+      const tmpCwd = fs.mkdtempSync(path.join(os.tmpdir(), 'wsb24-'));
+
+      const exec = new ParallelExecutor();
+      const result = await exec.executeWithProviders(['claude', 'codex', 'grok'], 'Architecture decision', {
+        mode: ParallelMode.CONSENSUS,
+        cwd: tmpCwd,
+        consensusId: 'test-3way',
+      });
+
+      expect(result.decisionLogPath).toBeDefined();
+      expect(fs.existsSync(result.decisionLogPath)).toBe(true);
+
+      const content = fs.readFileSync(result.decisionLogPath, 'utf8');
+      expect(content).toContain('# Decision Log: Cross-Vendor Consensus');
+      expect(content).toContain('## Votes');
+      expect(content).toContain('claude');
+      expect(content).toContain('grok');
+      expect(content).toContain('## Winner');
+
+      fs.rmSync(tmpCwd, { recursive: true, force: true });
+    });
+  });
+
+  describe('backward compatibility (2-provider execute)', () => {
+    it('classic execute() still works unchanged with two executor functions', async () => {
+      const exec = new ParallelExecutor();
+      const claudeExecutor = jest.fn().mockResolvedValue({ success: true, output: 'Claude' });
+      const geminiExecutor = jest.fn().mockResolvedValue({ success: true, output: 'Gemini' });
+
+      const result = await exec.execute(claudeExecutor, geminiExecutor);
+
+      expect(result.success).toBe(true);
+      expect(claudeExecutor).toHaveBeenCalled();
+      expect(geminiExecutor).toHaveBeenCalled();
+    });
   });
 });

@@ -95,6 +95,41 @@ describe('SubagentDispatcher', () => {
     });
   });
 
+  // ── resolveProvider (Story WSB-2.2: codex/grok hints) ──────────────────
+
+  describe('resolveProvider', () => {
+    let sd;
+
+    beforeEach(() => {
+      sd = new SubagentDispatcher();
+    });
+
+    test('uses explicit task.provider (codex/grok)', () => {
+      expect(sd.resolveProvider({ provider: 'codex' }, '@dev')).toBe('codex');
+      expect(sd.resolveProvider({ provider: 'GROK' }, '@dev')).toBe('grok');
+    });
+
+    test('recognizes codex hint in tags', () => {
+      expect(sd.resolveProvider({ tags: ['codex'] }, '@dev')).toBe('codex');
+      expect(sd.resolveProvider({ tags: ['@codex'] }, '@dev')).toBe('codex');
+    });
+
+    test('recognizes grok hint in tags', () => {
+      expect(sd.resolveProvider({ tags: ['grok'] }, '@dev')).toBe('grok');
+      expect(sd.resolveProvider({ tags: ['@grok'] }, '@dev')).toBe('grok');
+    });
+
+    test('recognizes codex/grok hint in description', () => {
+      expect(sd.resolveProvider({ description: 'route via @codex please' }, '@dev')).toBe('codex');
+      expect(sd.resolveProvider({ description: 'use @grok here' }, '@dev')).toBe('grok');
+    });
+
+    test('still resolves existing providers and default', () => {
+      expect(sd.resolveProvider({ tags: ['gemini'] }, '@dev')).toBe('gemini');
+      expect(sd.resolveProvider({}, '@dev')).toBe('claude');
+    });
+  });
+
   // ── dispatch ──────────────────────────────────────────────────────────
 
   describe('dispatch', () => {

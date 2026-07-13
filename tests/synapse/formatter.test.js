@@ -57,7 +57,7 @@ describe('SECTION_ORDER', () => {
   test('should include all expected sections', () => {
     const expected = [
       'CONTEXT_BRACKET', 'CONSTITUTION', 'AGENT', 'WORKFLOW',
-      'TASK', 'SQUAD', 'KEYWORD', 'STAR_COMMANDS', 'DEVMODE', 'SUMMARY',
+      'TASK', 'SQUAD', 'KEYWORD', 'STAR_COMMANDS', 'WORKSPACE', 'DEVMODE', 'SUMMARY',
     ];
     expect(SECTION_ORDER).toEqual(expected);
   });

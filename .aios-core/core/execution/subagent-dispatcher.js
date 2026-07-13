@@ -246,7 +246,7 @@ class SubagentDispatcher extends EventEmitter {
    * Resolve which AI provider should handle a task (Story GEMINI-INT.3)
    * @param {Object} task - Task to resolve provider for
    * @param {string} agentId - Resolved agent ID
-   * @returns {string} - Provider name ('claude', 'gemini', or 'auto')
+   * @returns {string} - Provider name ('claude', 'gemini', 'codex', 'grok', or 'auto')
    */
   resolveProvider(task, agentId) {
     // Check for explicit @gemini or @claude tag in task
@@ -262,12 +262,20 @@ class SubagentDispatcher extends EventEmitter {
       if (task.tags.includes('@claude') || task.tags.includes('claude')) {
         return 'claude';
       }
+      if (task.tags.includes('@codex') || task.tags.includes('codex')) {
+        return 'codex';
+      }
+      if (task.tags.includes('@grok') || task.tags.includes('grok')) {
+        return 'grok';
+      }
     }
 
     // Check description for provider hints
     const description = (task.description || '').toLowerCase();
     if (description.includes('@gemini')) return 'gemini';
     if (description.includes('@claude')) return 'claude';
+    if (description.includes('@codex')) return 'codex';
+    if (description.includes('@grok')) return 'grok';
 
     // Check agent mapping
     if (this.providerMapping[agentId]) {

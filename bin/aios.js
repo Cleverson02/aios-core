@@ -97,9 +97,16 @@ WORKSPACE (AIOX Cortex):
   aios workspace status                  # Show roots, tiers and permissions
 
 BRAIN (AIOX Cortex):
-  aios brain index                       # Index workspace roots (incremental)
-  aios brain ask "<query>" [--area X]    # Search knowledge with cited sources
+  aios brain index [--vectors]           # Index workspace roots (incremental)
+  aios brain ask "<query>" [--hybrid]    # Search knowledge with cited sources
+  aios brain entities <list|show|scan>   # Business entity graph
+  aios brain digest [--story X]          # Record session digest
   aios brain status                      # Index stats
+
+ROUTE (AIOX Cortex):
+  aios route suggest "<task>"            # Recommend best LLM for a task
+  aios route matrix                      # Show capability matrix
+  aios route policies                    # Show routing policies
 
 SERVICE DISCOVERY:
   aios workers search <query>            # Search for workers
@@ -1064,6 +1071,17 @@ async function main() {
         await brainCommand(args.slice(1));
       } catch (error) {
         console.error(`❌ Brain command error: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+
+    case 'route':
+      // LLM Router (capability matrix) - Stories WSB-2.1/2.3
+      try {
+        const { routeCommand } = require('../.aios-core/core/router');
+        await routeCommand(args.slice(1));
+      } catch (error) {
+        console.error(`❌ Route command error: ${error.message}`);
         process.exit(1);
       }
       break;

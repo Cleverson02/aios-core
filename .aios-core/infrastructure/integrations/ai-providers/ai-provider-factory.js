@@ -14,6 +14,8 @@ const yaml = require('js-yaml');
 
 const { ClaudeProvider } = require('./claude-provider');
 const { GeminiProvider } = require('./gemini-provider');
+const { CodexProvider } = require('./codex-provider');
+const { GrokProvider } = require('./grok-provider');
 
 /**
  * Cached provider instances (singleton pattern)
@@ -50,6 +52,14 @@ const DEFAULT_CONFIG = {
     previewFeatures: true,
     jsonOutput: false,
   },
+  codex: {
+    model: 'gpt-5.5-codex',
+    timeout: 300000,
+  },
+  grok: {
+    model: 'grok-4-5',
+    timeout: 300000,
+  },
 };
 
 /**
@@ -79,6 +89,8 @@ function loadConfig(projectRoot = process.cwd()) {
       ai_providers: { ...DEFAULT_CONFIG.ai_providers, ...userConfig?.ai_providers },
       claude: { ...DEFAULT_CONFIG.claude, ...userConfig?.claude },
       gemini: { ...DEFAULT_CONFIG.gemini, ...userConfig?.gemini },
+      codex: { ...DEFAULT_CONFIG.codex, ...userConfig?.codex },
+      grok: { ...DEFAULT_CONFIG.grok, ...userConfig?.grok },
     };
 
     return cachedConfig;
@@ -91,7 +103,7 @@ function loadConfig(projectRoot = process.cwd()) {
 
 /**
  * Get or create a provider instance
- * @param {string} providerName - Provider name ('claude' or 'gemini')
+ * @param {string} providerName - Provider name ('claude', 'gemini', 'codex', or 'grok')
  * @param {Object} [config] - Override configuration
  * @returns {AIProvider} Provider instance
  */
@@ -114,6 +126,14 @@ function getProvider(providerName, config = null) {
 
     case 'gemini':
       provider = new GeminiProvider(providerConfig);
+      break;
+
+    case 'codex':
+      provider = new CodexProvider(providerConfig);
+      break;
+
+    case 'grok':
+      provider = new GrokProvider(providerConfig);
       break;
 
     default:
@@ -213,7 +233,12 @@ async function executeWithFallback(prompt, options = {}) {
  * @returns {Promise<AIProvider[]>} Array of available providers
  */
 async function getAvailableProviders() {
-  const providers = [getProvider('claude'), getProvider('gemini')];
+  const providers = [
+    getProvider('claude'),
+    getProvider('gemini'),
+    getProvider('codex'),
+    getProvider('grok'),
+  ];
 
   const available = [];
   for (const provider of providers) {
@@ -232,7 +257,7 @@ async function getAvailableProviders() {
 async function getProvidersStatus() {
   const status = {};
 
-  for (const name of ['claude', 'gemini']) {
+  for (const name of ['claude', 'gemini', 'codex', 'grok']) {
     const provider = getProvider(name);
     const isAvailable = await provider.checkAvailability();
 
@@ -282,4 +307,6 @@ module.exports = {
   // Classes for direct use
   ClaudeProvider,
   GeminiProvider,
+  CodexProvider,
+  GrokProvider,
 };
