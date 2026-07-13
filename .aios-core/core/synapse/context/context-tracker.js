@@ -53,14 +53,21 @@ const DEFAULTS = {
 /**
  * Layer configurations per bracket.
  *
- * FRESH: L0 (Constitution), L1 (Global), L2 (Agent), L7 (Star-Command if explicit)
- * MODERATE: All 8 layers active
- * DEPLETED: All layers + memory hints enabled
- * CRITICAL: All layers + memory hints + handoff warning
+ * FRESH: L0 (Constitution), L1 (Global), L2 (Agent), L7 (Star-Command if explicit),
+ *        L8 (Workspace Knowledge — brain hints)
+ * MODERATE: All layers L0-L8 active
+ * DEPLETED: L0-L7 + memory hints enabled (L8 dropped — see WSB-1.5 note below)
+ * CRITICAL: L0-L7 + memory hints + handoff warning (L8 dropped)
+ *
+ * WSB-1.5 (L8 Workspace Knowledge): L8 is only active in the loose brackets
+ * (FRESH/MODERATE). In the tight brackets (DEPLETED/CRITICAL) the context is
+ * scarce and the focus shifts to reinforcement + handoff prep, so workspace
+ * brain hints are intentionally NOT injected. This is the single gate that keeps
+ * L8 out of tight brackets — no per-layer budget math is needed at runtime.
  */
 const LAYER_CONFIGS = {
-  FRESH:    { layers: [0, 1, 2, 7], memoryHints: false, handoffWarning: false },
-  MODERATE: { layers: [0, 1, 2, 3, 4, 5, 6, 7], memoryHints: false, handoffWarning: false },
+  FRESH:    { layers: [0, 1, 2, 7, 8], memoryHints: false, handoffWarning: false },
+  MODERATE: { layers: [0, 1, 2, 3, 4, 5, 6, 7, 8], memoryHints: false, handoffWarning: false },
   DEPLETED: { layers: [0, 1, 2, 3, 4, 5, 6, 7], memoryHints: true, handoffWarning: false },
   CRITICAL: { layers: [0, 1, 2, 3, 4, 5, 6, 7], memoryHints: true, handoffWarning: true },
 };

@@ -34,6 +34,10 @@ const LAYER_MODULES = [
   { path: './layers/l5-squad', layer: 5, name: 'squad' },
   { path: './layers/l6-keyword', layer: 6, name: 'keyword' },
   { path: './layers/l7-star-command', layer: 7, name: 'star-command' },
+  // WSB-1.5 — L8 Workspace Knowledge. Gated by context-tracker's LAYER_CONFIGS
+  // (active only in FRESH/MODERATE); loaded graciously — absent hot-index.json
+  // makes the layer return null with zero impact.
+  { path: './layers/l8-workspace-knowledge', layer: 8, name: 'workspace-knowledge' },
 ];
 
 /**

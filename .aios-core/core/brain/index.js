@@ -32,4 +32,8 @@ module.exports = {
   semantic,
   // WSB-1.4 — business entity graph (store, extractor, graph, queries, CLI)
   entities,
+  // WSB-1.5 — compact hot-index consumed by SYNAPSE L8
+  ...require('./hot-index'),
+  // WSB-1.6 — session digest (brain learns from each work session)
+  ...require('./digest'),
 };

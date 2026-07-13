@@ -45,6 +45,9 @@ async function brainCommand(args = []) {
     case 'entities':
       // WSB-1.4 — entitiesCommand parses its own argv slice
       return require('./entities').entitiesCommand(rest, { brainDir: indexer.brainDir });
+    case 'digest':
+      // WSB-1.6 — digestCommand parses its own argv slice
+      return require('./digest').digestCommand(rest);
     case 'status':
     case 'stats':
       return runStatus(indexer);
@@ -94,6 +97,21 @@ async function runIndex(indexer, flags) {
             `${vec.removed} removidos, ${vec.durationMs}ms`,
         ),
     );
+  }
+
+  // WSB-1.5 — hot-index compacto para a camada SYNAPSE L8 (sempre; é barato)
+  try {
+    const { buildHotIndex } = require('./hot-index');
+    const hot = await buildHotIndex(indexer.brainDir);
+    console.log(
+      chalk.green('✔ Hot-index (SYNAPSE L8)') +
+        chalk.dim(
+          ` — ${hot.entities} entidade(s), ${hot.areas} área(s), ` +
+            `${Math.round(hot.bytes / 1024)}KB, ${hot.durationMs}ms`,
+        ),
+    );
+  } catch (err) {
+    console.log(chalk.yellow(`  ⚠ hot-index não gerado: ${err.message}`));
   }
   return 0;
 }
@@ -218,6 +236,7 @@ function printUsage() {
   console.log('  ' + chalk.cyan('index [--full] [--vectors]') + '        (re)constrói o índice (+ vetores semânticos)');
   console.log('  ' + chalk.cyan('ask <query> [--area X] [--tier Y] [--semantic|--hybrid]'));
   console.log('  ' + chalk.cyan('entities <list|show|add|link|scan>') + ' grafo de entidades do negócio');
+  console.log('  ' + chalk.cyan('digest [--story X] [--dry-run]') + '    registra o digest da sessão em docs/digests/');
   console.log('  ' + chalk.cyan('status') + '                            estatísticas do índice');
 }
 
