@@ -1,6 +1,6 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-13T04:34:24.476Z'
+  lastUpdated: '2026-07-13T04:34:40.942Z'
   entityCount: 510
   checksumAlgorithm: sha256
 entities:
@@ -6315,7 +6315,7 @@ entities:
         constraints: []
         extensionPoints: []
       checksum: sha256:d3bc17700285edf46c43d2ebba7245a813598a637673dff63d218b6de0a68f30
-      lastVerified: '2026-07-13T04:34:24.475Z'
+      lastVerified: '2026-07-13T04:34:40.941Z'
     parallel-monitor:
       path: .aios-core/core/execution/parallel-monitor.js
       type: module
