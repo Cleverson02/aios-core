@@ -1,6 +1,6 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-13T04:12:19.588Z'
+  lastUpdated: '2026-07-13T04:13:09.836Z'
   entityCount: 510
   checksumAlgorithm: sha256
 entities:
@@ -6396,8 +6396,8 @@ entities:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:7bc03f948ccedfb03a6e4ab7fadb01ab0ea0d3d4dfd71b909cfe2ef3341d7281
-      lastVerified: '2026-02-08T13:33:24.334Z'
+      checksum: sha256:564743e8aff4b6ee660359d0fdd5649e702ffd9f5b0bc47f375a315c413c4bc4
+      lastVerified: '2026-07-13T04:13:09.834Z'
     wave-executor:
       path: .aios-core/core/execution/wave-executor.js
       type: module
