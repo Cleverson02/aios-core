@@ -93,6 +93,15 @@ jest.mock('../../.aios-core/core/synapse/layers/l7-star-command', () => {
   throw err;
 }, { virtual: true });
 
+// WSB-1.5 — L8 mocked as unavailable so this suite keeps testing L0-L3 loading
+// in isolation (matches the L4-L7 pattern above). The real L8 wiring is covered
+// by tests/synapse/l8-workspace-knowledge.test.js.
+jest.mock('../../.aios-core/core/synapse/layers/l8-workspace-knowledge', () => {
+  const err = new Error("Cannot find module './layers/l8-workspace-knowledge'");
+  err.code = 'MODULE_NOT_FOUND';
+  throw err;
+}, { virtual: true });
+
 // ---------------------------------------------------------------------------
 // Imports (after mocks)
 // ---------------------------------------------------------------------------

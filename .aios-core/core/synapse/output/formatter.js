@@ -30,6 +30,7 @@ const SECTION_ORDER = [
   'SQUAD',
   'KEYWORD',
   'STAR_COMMANDS',
+  'WORKSPACE',       // WSB-1.5 — L8 Workspace Knowledge (brain hints)
   'DEVMODE',
   'SUMMARY',
 ];
@@ -46,6 +47,7 @@ const LAYER_TO_SECTION = {
   squad: 'SQUAD',
   keyword: 'KEYWORD',
   'star-command': 'STAR_COMMANDS',
+  'workspace-knowledge': 'WORKSPACE',   // WSB-1.5 — L8
 };
 
 // ---------------------------------------------------------------------------
@@ -237,6 +239,30 @@ function formatStarCommands(result) {
   return lines.join('\n');
 }
 
+/**
+ * Format the WORKSPACE KNOWLEDGE section (WSB-1.5 — L8).
+ *
+ * Renders the compact brain hints (matched entities + area pointers) produced
+ * by the L8 layer from hot-index.json.
+ *
+ * @param {object} result - Layer result { rules, metadata }
+ * @returns {string}
+ */
+function formatWorkspace(result) {
+  const meta = result.metadata || {};
+  const matched = meta.matched || {};
+  const header = (matched.entities || matched.areas)
+    ? `[WORKSPACE KNOWLEDGE] (${matched.entities || 0} entities, ${matched.areas || 0} areas)`
+    : '[WORKSPACE KNOWLEDGE]';
+  const lines = [header];
+
+  for (const rule of result.rules) {
+    lines.push(`  ${rule}`);
+  }
+
+  return lines.join('\n');
+}
+
 // ---------------------------------------------------------------------------
 // DEVMODE Section (DESIGN doc section 13)
 // ---------------------------------------------------------------------------
@@ -380,6 +406,7 @@ function enforceTokenBudget(sections, sectionIds, tokenBudget) {
   // Truncation priority: remove from end first
   const TRUNCATION_ORDER = [
     'SUMMARY',
+    'WORKSPACE',      // WSB-1.5 — brain hints are the first real content dropped
     'KEYWORD',
     'SQUAD',
     'STAR_COMMANDS',
@@ -429,6 +456,7 @@ const SECTION_FORMATTERS = {
   SQUAD: formatSquad,
   KEYWORD: formatKeyword,
   STAR_COMMANDS: formatStarCommands,
+  WORKSPACE: formatWorkspace,   // WSB-1.5 — L8
 };
 
 /**
@@ -477,6 +505,7 @@ function formatSynapseRules(results, bracket, contextPercent, session, devmode, 
       else if (layerNum === 5) sectionResults['SQUAD'] = result;
       else if (layerNum === 6) sectionResults['KEYWORD'] = result;
       else if (layerNum === 7) sectionResults['STAR_COMMANDS'] = result;
+      else if (layerNum === 8) sectionResults['WORKSPACE'] = result;   // WSB-1.5 — L8
     }
   }
 
