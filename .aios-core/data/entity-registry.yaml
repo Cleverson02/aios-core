@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-12T23:49:23.227Z'
-  entityCount: 503
+  lastUpdated: '2026-07-13T03:31:49.949Z'
+  entityCount: 506
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -5996,12 +5996,14 @@ entities:
         - lexical-search
         - semantic
         - entities
+        - hot-index
+        - digest
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:78bdef5de3dc37c2ad9e9c38bb814d02800d526cf216aad36b5d2302e82ba6d4
-      lastVerified: '2026-07-12T23:49:23.226Z'
+      checksum: sha256:ff974bfeff7203c1fb6b8c6643ef7db3569cb0adefe322951673237949e41505
+      lastVerified: '2026-07-13T03:31:49.947Z'
     config-cache:
       path: .aios-core/core/config/config-cache.js
       type: module
@@ -6427,7 +6429,6 @@ entities:
         - check
       usedBy:
         - check-registry
-        - engine
         - console
         - json
         - markdown
@@ -6496,18 +6497,19 @@ entities:
     engine:
       path: .aios-core/core/health-check/engine.js
       type: module
-      purpose: Entity at .aios-core\core\health-check\engine.js
+      purpose: Entity at .aios-core/core/synapse/engine.js
       keywords:
         - engine
       usedBy: []
       dependencies:
-        - base-check
+        - context-tracker
+        - formatter
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:4388d1c988d3789c6e8626c265ebb6811c56a69cda4e1e0bf92a340bf08542b8
-      lastVerified: '2026-02-08T13:33:24.335Z'
+      checksum: sha256:e121adeb36c8e823b6614fd869341e6cd844d6236fc1b5d2f0d88c246fd56fc5
+      lastVerified: '2026-07-13T03:31:49.948Z'
     ideation-engine:
       path: .aios-core/core/ideation/ideation-engine.js
       type: module
@@ -8415,18 +8417,19 @@ entities:
     context-tracker:
       path: .aios-core/core/synapse/context/context-tracker.js
       type: module
-      purpose: Entity at .aios-core\core\synapse\context\context-tracker.js
+      purpose: Entity at .aios-core/core/synapse/context/context-tracker.js
       keywords:
         - context
         - tracker
-      usedBy: []
+      usedBy:
+        - engine
       dependencies: []
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:3b09f8323fab171e3aaa7a3a079b6cd65f6fd5775e661c24c295a4775cb31a68
-      lastVerified: '2026-02-11T02:17:11.045Z'
+      checksum: sha256:5049007d7df427f30c8e8dbc3b909f60dd810811820499f2c0cd1dbecefbecde
+      lastVerified: '2026-07-13T03:31:49.948Z'
     registry-facade:
       path: .aios-core/core/registry/registry-facade.js
       type: module
@@ -8506,13 +8509,15 @@ entities:
       dependencies:
         - indexer
         - entities
+        - digest
         - semantic
+        - hot-index
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:3a86436e9f2593ceffcd4d3913b78abff6e3bd75848082c2fd44aea4e67f6834
-      lastVerified: '2026-07-12T23:49:23.224Z'
+      checksum: sha256:c63a8571345ee1c53b7cb2be34c64551c5e8fe341bdae74260443bb0b82a713f
+      lastVerified: '2026-07-13T03:31:49.946Z'
     area-index-template:
       path: .aios-core/core/workspace/templates/area-index-template.md
       type: module
@@ -8737,6 +8742,7 @@ entities:
         - cli-entities
         - entity-graph
         - query
+        - hot-index
       dependencies: []
       adaptability:
         score: 0.4
@@ -8760,6 +8766,59 @@ entities:
         extensionPoints: []
       checksum: sha256:114dcd00e504363d6a39fc8d33369706367001b2c14c1a8972975abb6bc5b86e
       lastVerified: '2026-07-12T23:49:23.226Z'
+    hot-index:
+      path: .aios-core/core/brain/hot-index.js
+      type: module
+      purpose: 'string, topSource: string|null, _mentions: number}>}'
+      keywords:
+        - hot
+        - index
+      usedBy:
+        - index
+        - cli
+        - l8-workspace-knowledge
+      dependencies:
+        - workspace
+        - entity-store
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:1d178d225a9509340fbd22849d8228cd031ed1742d5f2be17728af864f30ea98
+      lastVerified: '2026-07-13T03:31:49.947Z'
+    l8-workspace-knowledge:
+      path: .aios-core/core/synapse/layers/l8-workspace-knowledge.js
+      type: module
+      purpose: Entity at .aios-core/core/synapse/layers/l8-workspace-knowledge.js
+      keywords:
+        - l8
+        - workspace
+        - knowledge
+      usedBy: []
+      dependencies:
+        - layer-processor
+        - hot-index
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:fa5ae25c91d8c20f1c2b23ce7c538dce0cc509a88926dcedca824a09e846daca
+      lastVerified: '2026-07-13T03:31:49.948Z'
+    formatter:
+      path: .aios-core/core/synapse/output/formatter.js
+      type: module
+      purpose: Entity at .aios-core/core/synapse/output/formatter.js
+      keywords:
+        - formatter
+      usedBy:
+        - engine
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:bc5100c12851f9bbb3c34d7aec16ca24a54f4c58896a23133463909ac1d843e1
+      lastVerified: '2026-07-13T03:31:49.948Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md
