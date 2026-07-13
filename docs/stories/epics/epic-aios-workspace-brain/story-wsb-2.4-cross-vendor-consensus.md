@@ -3,7 +3,7 @@
 **Epic:** AIOX Cortex — Workspace Brain (WSB)
 **Story ID:** WSB-2.4
 **Priority:** High
-**Status:** Draft (inicia após WSB-2.2)
+**Status:** In Progress (inicia após WSB-2.2)
 **Type:** Feature
 **Lead:** @dev (Dex)
 **Repository:** aios-core
