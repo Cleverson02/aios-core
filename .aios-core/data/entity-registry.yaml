@@ -1,6 +1,6 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-13T04:13:09.836Z'
+  lastUpdated: '2026-07-13T04:34:24.476Z'
   entityCount: 510
   checksumAlgorithm: sha256
 entities:
@@ -6303,7 +6303,7 @@ entities:
     parallel-executor:
       path: .aios-core/core/execution/parallel-executor.js
       type: module
-      purpose: Entity at .aios-core\core\execution\parallel-executor.js
+      purpose: Entity at .aios-core/core/execution/parallel-executor.js
       keywords:
         - parallel
         - executor
@@ -6314,8 +6314,8 @@ entities:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:46870e5c8ff8db3ee0386e477d427cc98eeb008f630818b093a9524b410590ae
-      lastVerified: '2026-02-08T13:33:24.333Z'
+      checksum: sha256:d3bc17700285edf46c43d2ebba7245a813598a637673dff63d218b6de0a68f30
+      lastVerified: '2026-07-13T04:34:24.475Z'
     parallel-monitor:
       path: .aios-core/core/execution/parallel-monitor.js
       type: module
