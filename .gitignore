@@ -347,3 +347,8 @@ docs/guides/glue-script-guide.md
 plan/
 .aios/providers-status.json
 .aios/gateway/
+.aios/radar/
+.aios/routines.yaml
+.aios/routines-state.json
+.aios/routines/
+.aios/routines.pid

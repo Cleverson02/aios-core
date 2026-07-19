@@ -8,9 +8,9 @@
 # - File types for categorization
 #
 version: 4.0.0
-generated_at: "2026-07-19T13:40:01.484Z"
+generated_at: "2026-07-19T13:43:42.374Z"
 generator: scripts/generate-install-manifest.js
-file_count: 1069
+file_count: 1070
 files:
   - path: cli/commands/config/index.js
     hash: sha256:ebcad2ce3807eda29dcddff76d7a95ddc9b7fa160df21fd608f94b802237e862
@@ -1068,14 +1068,18 @@ files:
     hash: sha256:a662b6f8b431baaf6c91b9b1faff9caba75522c53b6d3ec5b5475e8e947ca6b4
     type: core
     size: 17707
+  - path: core/radar/__tests__/radar.test.js
+    hash: sha256:7a888f2909e80929410e2140c623642709f0b35aabbbb9564e4c4ccc7d6ef6fc
+    type: core
+    size: 23738
   - path: core/radar/cli.js
-    hash: sha256:99232e3ef5f5a28e818a95864e5aa0f8728b5a8e0e3eb21ba6835ede10872bb8
+    hash: sha256:0d9e30be0ea91abd2f3bd566f9c8d9146a7e0b7c6abe8eca16dca629bb21de7f
     type: core
     size: 19129
   - path: core/radar/collectors.js
-    hash: sha256:372f9b5904bc48880015d176ca7ffd7ab786d36e009de1ec6a61526bce0c802e
+    hash: sha256:9946455b44a4778ac4ede598a3def145e47a1d6f857e82c7d57aa5f261c64fa5
     type: core
-    size: 16878
+    size: 16673
   - path: core/radar/heuristics.js
     hash: sha256:72d1432b13da0b9689208cd31e43c880150f86bf38f6df751acde3c953af15fe
     type: core
@@ -1085,9 +1089,9 @@ files:
     type: core
     size: 1051
   - path: core/radar/synthesizer.js
-    hash: sha256:5c9d0e6ee7c67a87b3696e6e991edf04fc744e65aa696fa64011af77e5e6bd33
+    hash: sha256:cebae6df685aae1a6f39a038c76817ae3840d5771f35c083abe81351250e56de
     type: core
-    size: 11448
+    size: 11325
   - path: core/README.md
     hash: sha256:bf40b518f8997dc17f1362fa89e927a2bad79c8ea6c5d2c05ffea7793dc34e8b
     type: core
