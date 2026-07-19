@@ -63,7 +63,7 @@ Dex (Builder) — @dev, Opus 4.8 (1M context).
 
 ### Validation
 
-- `npx jest .aios-core/core/providers --silent` → **19 passed** (credentials 8, availability 7, router-integration 4).
+- `npx jest .aios-core/core/providers --silent` → **19 passed** (credentials 8, availability 6, router-integration 5).
 - `npx jest .aios-core/core/router --silent` → **37 passed** (regressão intacta).
 - `eslint` limpo nos 7 arquivos tocados. `tsc --noEmit` sem erros relacionados a `providers/` (arquivos são CommonJS/JSDoc).
 - Saída real de `providersCommand(['list'])` neste ambiente (cwd isolado, `~/.aiox` real): `anthropic` chave ✗ / CLI ✓ / habilitado / **disponível ✓** (binário `claude` instalado); `openai` CLI ✗ / indisponível; `xai` CLI n/a / indisponível (sem `XAI_API_KEY`); `google` CLI ✗ / indisponível; `telegram` (só credencial) sem linha de availability.

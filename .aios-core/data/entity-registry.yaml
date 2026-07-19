@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-19T13:07:20.426Z'
-  entityCount: 520
+  lastUpdated: '2026-07-19T13:11:43.303Z'
+  entityCount: 524
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -5983,23 +5983,25 @@ entities:
       checksum: sha256:74ac4edc22f53a6e1ff7fe7d16add65b4e85e198dcdd0f54d3048ba032dc8f9a
       lastVerified: '2026-02-08T13:33:24.327Z'
     index:
-      path: .aios-core/core/providers/index.js
+      path: .aios-core/core/gateway/index.js
       type: module
-      purpose: Entity at .aios-core/core/providers/index.js
+      purpose: Entity at .aios-core/core/gateway/index.js
       keywords:
         - index
-      usedBy: []
-      dependencies:
-        - credentials-store
-        - availability
+      usedBy:
         - cli
-        - setup-wizard
+      dependencies:
+        - telegram-client
+        - pairing
+        - commands
+        - escalation-watcher
+        - cli
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:8be89caac8dbb729b90a06ec465aea5a0a3fbab10d29178b9c3f411f84d8b5be
-      lastVerified: '2026-07-19T13:07:20.424Z'
+      checksum: sha256:f55355d53880d90ce4dadc240f8d84836f2621c668b14f45d4f45d74e9e633b4
+      lastVerified: '2026-07-19T13:11:43.301Z'
     config-cache:
       path: .aios-core/core/config/config-cache.js
       type: module
@@ -6276,6 +6278,7 @@ entities:
         - build-orchestrator
         - handoff-packet
         - heartbeat
+        - commands
       dependencies:
         - stuck-detector
         - recovery-tracker
@@ -8507,22 +8510,25 @@ entities:
       checksum: sha256:db224469d08f2b0ae8b9e4961b950fc6325ba5cacab04047c8fb6f0eb0c6b614
       lastVerified: '2026-07-12T22:47:15.385Z'
     cli:
-      path: .aios-core/core/providers/cli.js
+      path: .aios-core/core/gateway/cli.js
       type: module
-      purpose: Entity at .aios-core/core/providers/cli.js
+      purpose: Entity at .aios-core/core/gateway/cli.js
       keywords:
         - cli
       usedBy:
         - index
       dependencies:
-        - credentials-store
-        - availability
+        - telegram-client
+        - pairing
+        - commands
+        - escalation-watcher
+        - index
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:96aca57f1f073eb35da864cda3acbfba68cb31ae2638467c3056c40142fd9ef5
-      lastVerified: '2026-07-19T13:07:20.423Z'
+      checksum: sha256:6e46d119303c4549f22cd27ecef7f5c2e09a51b651680f9c435471856aa10f4a
+      lastVerified: '2026-07-19T13:11:43.299Z'
     area-index-template:
       path: .aios-core/core/workspace/templates/area-index-template.md
       type: module
@@ -8599,6 +8605,7 @@ entities:
         - indexer
       usedBy:
         - digest
+        - commands
       dependencies:
         - chunker
         - lexical-search
@@ -8826,7 +8833,8 @@ entities:
       purpose: 'typeof flags.summary === ''string'' ? flags.summary : undefined,'
       keywords:
         - digest
-      usedBy: []
+      usedBy:
+        - commands
       dependencies:
         - session-memory
         - gotchas-memory
@@ -9019,8 +9027,6 @@ entities:
       keywords:
         - availability
       usedBy:
-        - index
-        - cli
         - setup-wizard
       dependencies:
         - matrix-loader
@@ -9039,8 +9045,6 @@ entities:
         - credentials
         - store
       usedBy:
-        - index
-        - cli
         - availability
         - setup-wizard
       dependencies: []
@@ -9057,8 +9061,7 @@ entities:
       keywords:
         - setup
         - wizard
-      usedBy:
-        - index
+      usedBy: []
       dependencies:
         - credentials-store
         - availability
@@ -9068,6 +9071,75 @@ entities:
         extensionPoints: []
       checksum: sha256:a96f4f2867086e05df90b1cd29040e931e6734f1ff27157d80f28ed9221e8000
       lastVerified: '2026-07-19T13:07:20.424Z'
+    commands:
+      path: .aios-core/core/gateway/commands.js
+      type: module
+      purpose: Entity at .aios-core/core/gateway/commands.js
+      keywords:
+        - commands
+      usedBy:
+        - index
+        - cli
+      dependencies:
+        - build-state-manager
+        - indexer
+        - digest
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:c384dc854402f568284d2a7dffba72717534e814cf08791bf69c379a293a92bc
+      lastVerified: '2026-07-19T13:11:43.300Z'
+    escalation-watcher:
+      path: .aios-core/core/gateway/escalation-watcher.js
+      type: module
+      purpose: Entity at .aios-core/core/gateway/escalation-watcher.js
+      keywords:
+        - escalation
+        - watcher
+      usedBy:
+        - index
+        - cli
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:4d315fd298f6182e7ef7a86760402f0886846ee17e6cf05161c6b8b3c0d86519
+      lastVerified: '2026-07-19T13:11:43.300Z'
+    pairing:
+      path: .aios-core/core/gateway/pairing.js
+      type: module
+      purpose: Entity at .aios-core/core/gateway/pairing.js
+      keywords:
+        - pairing
+      usedBy:
+        - index
+        - cli
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:bd40a345e5b4915d95eca8cfd028a2f7eaa424cf08744cd812e5d2216021e2c6
+      lastVerified: '2026-07-19T13:11:43.301Z'
+    telegram-client:
+      path: .aios-core/core/gateway/telegram-client.js
+      type: module
+      purpose: Entity at .aios-core/core/gateway/telegram-client.js
+      keywords:
+        - telegram
+        - client
+      usedBy:
+        - index
+        - cli
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:4a072639a3cb8449ff5d4f18dc36c8b69ca113d0568bedc926903ae811056e56
+      lastVerified: '2026-07-19T13:11:43.301Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md
