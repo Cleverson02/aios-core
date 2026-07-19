@@ -108,6 +108,12 @@ ROUTE (AIOX Cortex):
   aios route matrix                      # Show capability matrix
   aios route policies                    # Show routing policies
 
+RUN / AUTONOMY (AIOX Cortex):
+  aios run long <story-id>               # Start long-run session (heartbeat)
+  aios run status [story-id]             # Builds, context zones and handoffs
+  aios run resume <story-id>             # Resume from latest handoff packet
+  aios run handoff <story-id> [--spawn]  # Generate handoff packet (fresh window)
+
 SERVICE DISCOVERY:
   aios workers search <query>            # Search for workers
   aios workers search "json" --category=data
@@ -1082,6 +1088,18 @@ async function main() {
         await routeCommand(args.slice(1));
       } catch (error) {
         console.error(`❌ Route command error: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+
+    case 'run':
+      // Autonomy Engine (long-run, handoff, heartbeat) - Stories WSB-3.1/3.2/3.3
+      try {
+        const { runCommand } = require('../.aios-core/core/autonomy');
+        const exitCode = await runCommand(args.slice(1));
+        if (exitCode) process.exitCode = exitCode;
+      } catch (error) {
+        console.error(`❌ Run command error: ${error.message}`);
         process.exit(1);
       }
       break;
