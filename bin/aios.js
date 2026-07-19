@@ -1139,8 +1139,10 @@ async function main() {
       // Token/cost telemetry - Story WSB-4.5
       try {
         const { costsCommand } = require('../.aios-core/core/telemetry');
-        const exitCode = await costsCommand(args.slice(1));
-        if (exitCode) process.exitCode = exitCode;
+        // costsCommand returns the rendered output string (for testability),
+        // not an exit code — printing already happened inside the handler.
+        const result = await costsCommand(args.slice(1));
+        if (typeof result === 'number' && result) process.exitCode = result;
       } catch (error) {
         console.error(`❌ Costs command error: ${error.message}`);
         process.exit(1);
