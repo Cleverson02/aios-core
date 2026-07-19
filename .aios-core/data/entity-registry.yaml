@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-19T13:11:43.303Z'
-  entityCount: 524
+  lastUpdated: '2026-07-19T13:15:40.429Z'
+  entityCount: 526
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -5983,25 +5983,22 @@ entities:
       checksum: sha256:74ac4edc22f53a6e1ff7fe7d16add65b4e85e198dcdd0f54d3048ba032dc8f9a
       lastVerified: '2026-02-08T13:33:24.327Z'
     index:
-      path: .aios-core/core/gateway/index.js
+      path: .aios-core/core/guide/index.js
       type: module
-      purpose: Entity at .aios-core/core/gateway/index.js
+      purpose: Entity at .aios-core/core/guide/index.js
       keywords:
         - index
-      usedBy:
-        - cli
+      usedBy: []
       dependencies:
-        - telegram-client
-        - pairing
-        - commands
-        - escalation-watcher
+        - project-state
+        - next-step
         - cli
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:f55355d53880d90ce4dadc240f8d84836f2621c668b14f45d4f45d74e9e633b4
-      lastVerified: '2026-07-19T13:11:43.301Z'
+      checksum: sha256:bc4378e7b81593513f73bfd286b38b5a7f01f20b0b685683315ec2ad70b6d7b4
+      lastVerified: '2026-07-19T13:15:10.808Z'
     config-cache:
       path: .aios-core/core/config/config-cache.js
       type: module
@@ -7440,6 +7437,7 @@ entities:
         - context-loading
         - unified-activation-pipeline
         - index.esm
+        - next-step
       dependencies:
         - context-detector
       adaptability:
@@ -8510,25 +8508,21 @@ entities:
       checksum: sha256:db224469d08f2b0ae8b9e4961b950fc6325ba5cacab04047c8fb6f0eb0c6b614
       lastVerified: '2026-07-12T22:47:15.385Z'
     cli:
-      path: .aios-core/core/gateway/cli.js
+      path: .aios-core/core/guide/cli.js
       type: module
-      purpose: Entity at .aios-core/core/gateway/cli.js
+      purpose: Entity at .aios-core/core/workspace/cli.js
       keywords:
         - cli
       usedBy:
         - index
       dependencies:
-        - telegram-client
-        - pairing
-        - commands
-        - escalation-watcher
-        - index
+        - workspace-manager
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:6e46d119303c4549f22cd27ecef7f5c2e09a51b651680f9c435471856aa10f4a
-      lastVerified: '2026-07-19T13:11:43.299Z'
+      checksum: sha256:3f7e0cdbf4698ebe888f0fb0c03f89b8d87d8eac31c0576e0031480530e74bab
+      lastVerified: '2026-07-19T13:15:40.427Z'
     area-index-template:
       path: .aios-core/core/workspace/templates/area-index-template.md
       type: module
@@ -8573,7 +8567,9 @@ entities:
       keywords:
         - workspace
         - manager
-      usedBy: []
+      usedBy:
+        - cli
+        - project-state
       dependencies:
         - workspace-schema
       adaptability:
@@ -8606,6 +8602,7 @@ entities:
       usedBy:
         - digest
         - commands
+        - project-state
       dependencies:
         - chunker
         - lexical-search
@@ -9077,9 +9074,7 @@ entities:
       purpose: Entity at .aios-core/core/gateway/commands.js
       keywords:
         - commands
-      usedBy:
-        - index
-        - cli
+      usedBy: []
       dependencies:
         - build-state-manager
         - indexer
@@ -9097,9 +9092,7 @@ entities:
       keywords:
         - escalation
         - watcher
-      usedBy:
-        - index
-        - cli
+      usedBy: []
       dependencies: []
       adaptability:
         score: 0.4
@@ -9113,9 +9106,7 @@ entities:
       purpose: Entity at .aios-core/core/gateway/pairing.js
       keywords:
         - pairing
-      usedBy:
-        - index
-        - cli
+      usedBy: []
       dependencies: []
       adaptability:
         score: 0.4
@@ -9130,9 +9121,7 @@ entities:
       keywords:
         - telegram
         - client
-      usedBy:
-        - index
-        - cli
+      usedBy: []
       dependencies: []
       adaptability:
         score: 0.4
@@ -9140,6 +9129,44 @@ entities:
         extensionPoints: []
       checksum: sha256:4a072639a3cb8449ff5d4f18dc36c8b69ca113d0568bedc926903ae811056e56
       lastVerified: '2026-07-19T13:11:43.301Z'
+    next-step:
+      path: .aios-core/core/guide/next-step.js
+      type: module
+      purpose: Entity at .aios-core/core/guide/next-step.js
+      keywords:
+        - next
+        - step
+      usedBy:
+        - index
+      dependencies:
+        - project-state
+        - context-loader
+        - workflow-intelligence
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:ea9867cec013ba9103af26d211fbf06f2dd86e5e123f9afb8a20013a187466d4
+      lastVerified: '2026-07-19T13:15:10.808Z'
+    project-state:
+      path: .aios-core/core/guide/project-state.js
+      type: module
+      purpose: Entity at .aios-core/core/guide/project-state.js
+      keywords:
+        - project
+        - state
+      usedBy:
+        - index
+        - next-step
+      dependencies:
+        - workspace-manager
+        - indexer
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:59a427f2f678d155ceb50db04f93da216fe1c42aebaf0162601a2763ef377a50
+      lastVerified: '2026-07-19T13:15:10.808Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md

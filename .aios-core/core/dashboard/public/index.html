@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>AIOX Cortex — Observability</title>
+    <style>
+      :root {
+        --bg: #0b0e14;
+        --bg-panel: #131824;
+        --bg-elev: #1a2130;
+        --border: #232c3d;
+        --text: #e6e9ef;
+        --text-dim: #8a93a6;
+        --text-faint: #5b6478;
+        --accent: #6ea8fe;
+        --accent-dim: #2a4a7a;
+        --green: #46c993;
+        --yellow: #e6b450;
+        --red: #e06c75;
+        --bar: #3a6ea5;
+        --bar-track: #1f2836;
+        --mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(180deg, #10151f, var(--bg));
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+      .brand { display: flex; align-items: baseline; gap: 12px; }
+      .brand h1 { font-size: 18px; margin: 0; letter-spacing: 0.3px; font-weight: 650; }
+      .brand .sub { color: var(--text-dim); font-size: 12px; }
+      .status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-dim); }
+      .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-faint); }
+      .dot.ok { background: var(--green); box-shadow: 0 0 8px var(--green); }
+      .dot.down { background: var(--red); }
+
+      nav.tabs { display: flex; gap: 2px; padding: 0 24px; border-bottom: 1px solid var(--border); background: var(--bg); }
+      nav.tabs button {
+        background: none;
+        border: none;
+        color: var(--text-dim);
+        padding: 12px 18px;
+        font-size: 13.5px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: color 0.15s, border-color 0.15s;
+      }
+      nav.tabs button:hover { color: var(--text); }
+      nav.tabs button.active { color: var(--text); border-bottom-color: var(--accent); }
+
+      main { padding: 24px; max-width: 1240px; margin: 0 auto; }
+      .view { display: none; }
+      .view.active { display: block; }
+
+      .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 22px; }
+      .card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+      .card .label { color: var(--text-dim); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+      .card .value { font-size: 26px; font-weight: 650; margin-top: 6px; font-variant-numeric: tabular-nums; }
+      .card .value.mono { font-family: var(--mono); }
+      .card .hint { color: var(--text-faint); font-size: 12px; margin-top: 4px; }
+
+      .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 22px; }
+      .panel > h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); margin: 0; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+      .panel-body { padding: 6px 0; }
+
+      table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+      th, td { text-align: left; padding: 9px 18px; font-size: 13px; }
+      th { color: var(--text-faint); font-weight: 500; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.4px; }
+      tbody tr { border-top: 1px solid var(--border); }
+      tbody tr:hover { background: var(--bg-elev); }
+      td.num { text-align: right; font-family: var(--mono); }
+      td.key { font-weight: 600; }
+
+      .bar-cell { min-width: 160px; }
+      .bar-track { background: var(--bar-track); border-radius: 4px; height: 8px; overflow: hidden; }
+      .bar-fill { background: linear-gradient(90deg, var(--accent-dim), var(--accent)); height: 100%; border-radius: 4px; }
+
+      .pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.3px; }
+      .pill.green { background: rgba(70,201,147,0.15); color: var(--green); }
+      .pill.yellow { background: rgba(230,180,80,0.15); color: var(--yellow); }
+      .pill.red { background: rgba(224,108,117,0.16); color: var(--red); }
+      .pill.gray { background: rgba(138,147,166,0.14); color: var(--text-dim); }
+      .pill.est { background: rgba(110,168,254,0.14); color: var(--accent); }
+
+      .agent-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; padding: 14px 18px; }
+      .agent { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+      .agent .name { font-weight: 650; display: flex; align-items: center; gap: 8px; }
+      .agent .meta { color: var(--text-dim); font-size: 12px; margin-top: 4px; }
+      .live { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 7px var(--green); animation: pulse 1.6s infinite; }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+      .timeline { padding: 4px 0; }
+      .tl-row { display: flex; gap: 12px; padding: 7px 18px; border-top: 1px solid var(--border); align-items: baseline; }
+      .tl-row .ts { color: var(--text-faint); font-family: var(--mono); font-size: 12px; min-width: 88px; }
+      .tl-row .who { font-weight: 600; min-width: 72px; }
+      .tl-row .what { color: var(--text-dim); }
+
+      .build { padding: 14px 18px; border-top: 1px solid var(--border); }
+      .build:first-child { border-top: none; }
+      .build .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .build .story { font-weight: 650; }
+      .subbar { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+      .subbar .track { flex: 1; background: var(--bar-track); height: 8px; border-radius: 4px; overflow: hidden; }
+      .subbar .fill { height: 100%; background: linear-gradient(90deg, #2f7a58, var(--green)); border-radius: 4px; }
+      .subbar .frac { font-family: var(--mono); font-size: 12px; color: var(--text-dim); }
+
+      .zone-log { padding: 4px 0; }
+      .zone-row { display: flex; gap: 12px; align-items: baseline; padding: 6px 18px; border-top: 1px solid var(--border); }
+      .zone-row .ts { color: var(--text-faint); font-family: var(--mono); font-size: 12px; min-width: 88px; }
+      .zone-arrow { color: var(--text-faint); }
+
+      .escalation { padding: 12px 18px; border-top: 1px solid var(--border); background: rgba(224,108,117,0.06); }
+      .escalation .title { font-weight: 650; color: var(--red); }
+      .escalation .meta { color: var(--text-dim); font-size: 12px; margin-top: 3px; font-family: var(--mono); }
+
+      .filter { padding: 12px 18px; border-bottom: 1px solid var(--border); }
+      .filter input {
+        width: 100%; background: var(--bg-elev); border: 1px solid var(--border); border-radius: 8px;
+        color: var(--text); padding: 9px 12px; font-size: 13px; font-family: var(--mono);
+      }
+      .filter input:focus { outline: none; border-color: var(--accent-dim); }
+
+      .empty { padding: 40px 24px; text-align: center; color: var(--text-dim); }
+      .empty .big { font-size: 15px; color: var(--text); margin-bottom: 8px; }
+      .empty code { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; font-family: var(--mono); color: var(--accent); }
+
+      .errbar { margin: 0 0 18px; padding: 10px 14px; border-radius: 8px; background: rgba(224,108,117,0.1); border: 1px solid rgba(224,108,117,0.3); color: var(--red); font-size: 13px; }
+      .muted { color: var(--text-faint); }
+      footer { text-align: center; color: var(--text-faint); font-size: 12px; padding: 20px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <h1>AIOX Cortex — Observability</h1>
+        <span class="sub">observa, nunca controla · 127.0.0.1</span>
+      </div>
+      <div class="status">
+        <span class="dot" id="statusDot"></span>
+        <span id="statusText">conectando…</span>
+      </div>
+    </header>
+
+    <nav class="tabs" id="tabs">
+      <button data-tab="costs" class="active">Custos</button>
+      <button data-tab="agents">Agentes</button>
+      <button data-tab="builds">Execuções</button>
+      <button data-tab="telemetry">Telemetria</button>
+    </nav>
+
+    <main>
+      <section class="view active" id="view-costs"></section>
+      <section class="view" id="view-agents"></section>
+      <section class="view" id="view-builds"></section>
+      <section class="view" id="view-telemetry"></section>
+    </main>
+
+    <footer>AIOX Cortex · atualização a cada 5s · dados 100% locais e determinísticos</footer>
+
+    <script>
+      'use strict';
+
+      // ─────────────────────────────────────────────────────────── helpers ──
+      var POLL_MS = 5000;
+      var state = { tab: 'costs', telemetryFilter: '' };
+
+      function $(sel, root) { return (root || document).querySelector(sel); }
+      function el(tag, attrs, children) {
+        var node = document.createElement(tag);
+        if (attrs) {
+          Object.keys(attrs).forEach(function (k) {
+            if (k === 'class') node.className = attrs[k];
+            else if (k === 'html') node.innerHTML = attrs[k];
+            else node.setAttribute(k, attrs[k]);
+          });
+        }
+        (children || []).forEach(function (c) {
+          if (c == null) return;
+          node.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+        });
+        return node;
+      }
+      function esc(s) {
+        return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
+      }
+      function usd(n) {
+        var v = Number(n) || 0;
+        if (v > 0 && v < 0.01) return '$' + v.toFixed(4);
+        return '$' + v.toFixed(2);
+      }
+      function num(n) { return (Number(n) || 0).toLocaleString('en-US'); }
+      function pct(n) { return (Number(n) || 0).toFixed(1) + '%'; }
+      function shortTs(ts) {
+        if (!ts) return '—';
+        var d = new Date(ts);
+        if (isNaN(d.getTime())) return String(ts);
+        return d.toLocaleTimeString('pt-BR', { hour12: false }) + ' ' + d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      }
+      function ago(ms) {
+        var s = Math.floor((Number(ms) || 0) / 1000);
+        if (s < 60) return s + 's atrás';
+        var m = Math.floor(s / 60);
+        if (m < 60) return m + 'min atrás';
+        return Math.floor(m / 60) + 'h atrás';
+      }
+      function cachePct(t) {
+        var input = (Number(t.inputTokens) || 0) + (Number(t.cachedInputTokens) || 0);
+        if (input === 0) return 0;
+        return ((Number(t.cachedInputTokens) || 0) / input) * 100;
+      }
+      function emptyState(title, hint, cmd) {
+        return el('div', { class: 'empty' }, [
+          el('div', { class: 'big' }, [title]),
+          el('div', {}, [hint + ' '].concat(cmd ? [el('code', {}, [cmd])] : [])),
+        ]);
+      }
+      function getJSON(url) {
+        return fetch(url, { headers: { accept: 'application/json' } }).then(function (r) { return r.json(); });
+      }
+
+      // ───────────────────────────────────────────────────────────── tabs ──
+      Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (btn) {
+        btn.addEventListener('click', function () {
+          state.tab = btn.getAttribute('data-tab');
+          Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (b) {
+            b.classList.toggle('active', b === btn);
+          });
+          Array.prototype.forEach.call(document.querySelectorAll('.view'), function (v) {
+            v.classList.toggle('active', v.id === 'view-' + state.tab);
+          });
+          refresh();
+        });
+      });
+
+      // ──────────────────────────────────────────────────────────── views ──
+      function renderError(container, msg) {
+        container.insertBefore(el('div', { class: 'errbar' }, ['⚠ ' + msg]), container.firstChild);
+      }
+
+      function renderCosts(view, byProvider, byDay) {
+        view.innerHTML = '';
+        var t = (byProvider && byProvider.totals) || {};
+        var groups = (byProvider && byProvider.groups) || [];
+
+        if (byProvider && byProvider.error) { renderError(view, byProvider.error); }
+
+        if (!groups.length && !(t.calls > 0)) {
+          view.appendChild(emptyState(
+            'Nenhum custo registrado ainda.',
+            'Rode um agente com o Gateway ativo para gerar telemetria em .aios/telemetry/usage.jsonl, ou:',
+            'aios run long <story-id>'
+          ));
+          return;
+        }
+
+        // Today from the day aggregation.
+        var todayKey = new Date().toISOString().slice(0, 10);
+        var todayCost = 0;
+        ((byDay && byDay.groups) || []).forEach(function (g) { if (g.key === todayKey) todayCost = g.costUsd; });
+
+        view.appendChild(el('div', { class: 'cards' }, [
+          card('Custo total', usd(t.costUsd), num(t.calls) + ' chamadas', true),
+          card('Hoje', usd(todayCost), todayKey, true),
+          card('Cache', pct(cachePct(t)), num(t.cachedInputTokens) + ' tokens em cache', false),
+          card('Estimado', pct(t.estimatedPct), 'parcela sem custo real de provider', false),
+        ]));
+
+        // Table by provider with proportional bars.
+        var maxCost = groups.reduce(function (m, g) { return Math.max(m, Number(g.costUsd) || 0); }, 0) || 1;
+        var rows = groups.map(function (g) {
+          var w = Math.max(2, Math.round(((Number(g.costUsd) || 0) / maxCost) * 100));
+          return el('tr', {}, [
+            el('td', { class: 'key' }, [g.key]),
+            el('td', { class: 'bar-cell' }, [
+              el('div', { class: 'bar-track' }, [el('div', { class: 'bar-fill', style: 'width:' + w + '%' })]),
+            ]),
+            el('td', { class: 'num' }, [usd(g.costUsd)]),
+            el('td', { class: 'num' }, [num(g.calls)]),
+            el('td', { class: 'num' }, [num(g.inputTokens)]),
+            el('td', { class: 'num' }, [num(g.outputTokens)]),
+            el('td', { class: 'num' }, [pct(cachePct(g))]),
+          ]);
+        });
+
+        view.appendChild(el('div', { class: 'panel' }, [
+          el('h2', {}, ['Custo por provider']),
+          el('div', { class: 'panel-body' }, [
+            el('table', {}, [
+              el('thead', {}, [el('tr', {}, [
+                th('Provider'), th('Proporção'), thR('Custo'), thR('Chamadas'), thR('Input'), thR('Output'), thR('Cache'),
+              ])]),
+              el('tbody', {}, rows),
+            ]),
+          ]),
+        ]));
+      }
+
+      function renderAgents(view, data) {
+        view.innerHTML = '';
+        if (data && data.error) { renderError(view, data.error); }
+        var active = (data && data.active) || [];
+        var recent = (data && data.recent) || [];
+
+        if (!active.length && !recent.length) {
+          view.appendChild(emptyState(
+            'Nenhuma atividade de agente registrada.',
+            'A atividade aparece quando um agente roda e grava .aios/telemetry/activity.jsonl. Inicie com:',
+            'aios run long <story-id>'
+          ));
+          return;
+        }
+
+        var cards = active.length
+          ? active.map(function (a) {
+              return el('div', { class: 'agent' }, [
+                el('div', { class: 'name' }, [el('span', { class: 'live' }), a.agent]),
+                el('div', { class: 'meta' }, [(a.action || 'ativo') + (a.storyId ? ' · ' + a.storyId : '')]),
+                el('div', { class: 'meta muted' }, [(a.project || '—') + ' · ' + ago(a.lastSeenMsAgo)]),
+              ]);
+            })
+          : [el('div', { class: 'empty' }, ['Nenhum agente ativo na janela de 15 minutos.'])];
+
+        view.appendChild(el('div', { class: 'panel' }, [
+          el('h2', {}, ['Agentes ativos (janela 15 min)']),
+          el('div', { class: 'agent-list' }, cards),
+        ]));
+
+        var tl = recent.map(function (r) {
+          return el('div', { class: 'tl-row' }, [
+            el('span', { class: 'ts' }, [shortTs(r.ts)]),
+            el('span', { class: 'who' }, [r.agent || '—']),
+            el('span', { class: 'what' }, [(r.action || '—') + (r.storyId ? ' · ' + r.storyId : '')]),
+          ]);
+        });
+        view.appendChild(el('div', { class: 'panel' }, [
+          el('h2', {}, ['Timeline recente']),
+          el('div', { class: 'timeline' }, tl.length ? tl : [el('div', { class: 'empty' }, ['Sem eventos recentes.'])]),
+        ]));
+      }
+
+      function zonePill(zone) {
+        var z = String(zone || '').toUpperCase();
+        var cls = z === 'GREEN' ? 'green' : z === 'YELLOW' ? 'yellow' : z === 'RED' ? 'red' : 'gray';
+        return el('span', { class: 'pill ' + cls }, [z || '?']);
+      }
+
+      function renderBuilds(view, data) {
+        view.innerHTML = '';
+        if (data && data.error) { renderError(view, data.error); }
+        var builds = (data && data.builds) || [];
+        var zones = (data && data.zones) || [];
+        var handoffs = (data && data.handoffs) || [];
+        var escalations = (data && data.escalations) || [];
+
+        if (escalations.length) {
+          view.appendChild(el('div', { class: 'panel' }, [
+            el('h2', {}, ['⚠ Escalações pendentes (' + escalations.length + ')']),
+            el('div', {}, escalations.map(function (e) {
+              return el('div', { class: 'escalation' }, [
+                el('div', { class: 'title' }, [e.title || e.name]),
+                el('div', { class: 'meta' }, [e.name + (e.mtime ? ' · ' + shortTs(e.mtime) : '')]),
+              ]);
+            })),
+          ]));
+        }
+
+        if (!builds.length && !zones.length && !handoffs.length && !escalations.length) {
+          view.appendChild(emptyState(
+            'Nenhum build ou execução em andamento.',
+            'Inicie um build autônomo para ver estados, subtarefas e zonas de contexto:',
+            'aios run long <story-id>'
+          ));
+          return;
+        }
+
+        var buildRows = builds.length
+          ? builds.map(function (b) {
+              var p = b.progress || { completed: 0, total: 0, percentage: 0 };
+              return el('div', { class: 'build' }, [
+                el('div', { class: 'top' }, [
+                  el('span', { class: 'story' }, [b.storyId || '—']),
+                  statusPill(b.status),
+                ]),
+                el('div', { class: 'subbar' }, [
+                  el('div', { class: 'track' }, [el('div', { class: 'fill', style: 'width:' + (p.percentage || 0) + '%' })]),
+                  el('span', { class: 'frac' }, [(p.completed || 0) + '/' + (p.total || 0) + ' subtasks']),
+                ]),
+                el('div', { class: 'meta muted', style: 'font-size:12px;margin-top:6px' }, [
+                  (b.currentSubtask ? 'atual: ' + b.currentSubtask + ' · ' : '') +
+                  'duração ' + (b.duration || '—') +
+                  (b.abandoned ? ' · ABANDONADO' : ''),
+                ]),
+              ]);
+            })
+          : [el('div', { class: 'empty' }, ['Nenhum build ativo.'])];
+
+        view.appendChild(el('div', { class: 'panel' }, [
+          el('h2', {}, ['Builds']),
+          el('div', {}, buildRows),
+        ]));
+
+        var zoneRows = zones.map(function (z) {
+          return el('div', { class: 'zone-row' }, [
+            el('span', { class: 'ts' }, [shortTs(z.timestamp)]),
+            zonePill(z.from), el('span', { class: 'zone-arrow' }, ['→']), zonePill(z.to),
+            el('span', { class: 'muted' }, [(z.storyId ? ' ' + z.storyId : '') + (z.percentUsed != null ? ' · ' + z.percentUsed + '% usado' : '')]),
+          ]);
+        });
+        view.appendChild(el('div', { class: 'panel' }, [
+          el('h2', {}, ['Zonas de contexto (transições recentes)']),
+          el('div', { class: 'zone-log' }, zoneRows.length ? zoneRows : [el('div', { class: 'empty' }, ['Sem transições de zona.'])]),
+        ]));
+
+        var hoRows = handoffs.map(function (h) {
+          return el('div', { class: 'tl-row' }, [
+            el('span', { class: 'ts' }, [shortTs(h.mtime)]),
+            el('span', { class: 'who' }, [h.storyId || '—']),
+            el('span', { class: 'what muted' }, [h.name]),
+          ]);
+        });
+        view.appendChild(el('div', { class: 'panel' }, [
+          el('h2', {}, ['Handoff packets']),
+          el('div', { class: 'timeline' }, hoRows.length ? hoRows : [el('div', { class: 'empty' }, ['Nenhum handoff gerado.'])]),
+        ]));
+      }
+
+      function renderTelemetry(view, data) {
+        // Build once; keep the filter input focused across polls.
+        var existing = $('#telemetryFilter');
+        var focused = existing && document.activeElement === existing;
+        var caret = existing ? existing.selectionStart : null;
+
+        view.innerHTML = '';
+        if (data && data.error) { renderError(view, data.error); }
+        var calls = (data && data.calls) || [];
+
+        var input = el('input', { id: 'telemetryFilter', type: 'text', placeholder: 'Filtrar por provider, modelo, agente, story…', value: state.telemetryFilter });
+        input.addEventListener('input', function () {
+          state.telemetryFilter = input.value;
+          applyTelemetryFilter();
+        });
+        view.appendChild(el('div', { class: 'panel' }, [
+          el('h2', {}, ['Últimas chamadas (' + calls.length + ')']),
+          el('div', { class: 'filter' }, [input]),
+          el('div', { class: 'panel-body' }, [
+            el('table', {}, [
+              el('thead', {}, [el('tr', {}, [
+                th('Timestamp'), th('Provider'), th('Modelo'), thR('In'), thR('Out'), thR('Cache'), thR('Custo'), th('Fonte'),
+              ])]),
+              el('tbody', { id: 'telemetryBody' }, []),
+            ]),
+          ]),
+        ]));
+
+        if (!calls.length) {
+          $('#telemetryBody').appendChild(el('tr', {}, [
+            el('td', { colspan: '8' }, [emptyState(
+              'Nenhuma chamada telemetrada ainda.',
+              'Cada chamada de IA registra uma linha em .aios/telemetry/usage.jsonl. Rode:',
+              'aios run long <story-id>'
+            )]),
+          ]));
+          return;
+        }
+
+        window.__telemetryCalls = calls;
+        applyTelemetryFilter();
+
+        if (focused) {
+          var again = $('#telemetryFilter');
+          again.focus();
+          if (caret != null) { try { again.setSelectionRange(caret, caret); } catch (e) { /* noop */ } }
+        }
+      }
+
+      function applyTelemetryFilter() {
+        var body = $('#telemetryBody');
+        if (!body) return;
+        var q = (state.telemetryFilter || '').toLowerCase();
+        var calls = window.__telemetryCalls || [];
+        var filtered = q
+          ? calls.filter(function (c) {
+              return [c.provider, c.model, c.agent, c.storyId, c.project].join(' ').toLowerCase().indexOf(q) !== -1;
+            })
+          : calls;
+        body.innerHTML = '';
+        if (!filtered.length) {
+          body.appendChild(el('tr', {}, [el('td', { colspan: '8', class: 'muted', style: 'padding:18px' }, ['Nenhuma chamada corresponde ao filtro.'])]));
+          return;
+        }
+        filtered.forEach(function (c) {
+          body.appendChild(el('tr', {}, [
+            el('td', {}, [shortTs(c.ts)]),
+            el('td', { class: 'key' }, [c.provider || '—']),
+            el('td', {}, [c.model || '—']),
+            el('td', { class: 'num' }, [num(c.inputTokens)]),
+            el('td', { class: 'num' }, [num(c.outputTokens)]),
+            el('td', { class: 'num' }, [num(c.cachedInputTokens)]),
+            el('td', { class: 'num' }, [c.costUsd == null ? '—' : usd(c.costUsd)]),
+            el('td', {}, [c.estimated ? el('span', { class: 'pill est' }, ['est']) : el('span', { class: 'pill gray' }, ['real'])]),
+          ]));
+        });
+      }
+
+      // ─────────────────────────────────────────────────────── ui atoms ──
+      function card(label, value, hint, mono) {
+        return el('div', { class: 'card' }, [
+          el('div', { class: 'label' }, [label]),
+          el('div', { class: 'value' + (mono ? ' mono' : '') }, [value]),
+          el('div', { class: 'hint' }, [hint]),
+        ]);
+      }
+      function th(t) { return el('th', {}, [t]); }
+      function thR(t) { return el('th', { style: 'text-align:right' }, [t]); }
+      function statusPill(status) {
+        var s = String(status || 'unknown');
+        var cls = s === 'completed' ? 'green' : s === 'in_progress' ? 'green' : s === 'failed' || s === 'abandoned' ? 'red' : s === 'paused' ? 'yellow' : 'gray';
+        return el('span', { class: 'pill ' + cls }, [s]);
+      }
+
+      // ─────────────────────────────────────────────────────── polling ──
+      function setStatus(ok, text) {
+        var dot = $('#statusDot');
+        dot.className = 'dot ' + (ok ? 'ok' : 'down');
+        $('#statusText').textContent = text;
+      }
+
+      function refreshHealth() {
+        return getJSON('/api/health').then(function (h) {
+          setStatus(true, 'v' + (h.version || '?') + ' · ' + (h.cwd || ''));
+        }).catch(function () { setStatus(false, 'servidor indisponível'); });
+      }
+
+      function refresh() {
+        refreshHealth();
+        if (state.tab === 'costs') {
+          Promise.all([
+            getJSON('/api/costs?by=provider&since=7d').catch(function (e) { return { error: String(e) }; }),
+            getJSON('/api/costs?by=day&since=7d').catch(function () { return { groups: [] }; }),
+          ]).then(function (r) { renderCosts($('#view-costs'), r[0], r[1]); });
+        } else if (state.tab === 'agents') {
+          getJSON('/api/agents').catch(function (e) { return { error: String(e) }; }).then(function (d) { renderAgents($('#view-agents'), d); });
+        } else if (state.tab === 'builds') {
+          getJSON('/api/builds').catch(function (e) { return { error: String(e) }; }).then(function (d) { renderBuilds($('#view-builds'), d); });
+        } else if (state.tab === 'telemetry') {
+          getJSON('/api/telemetry?limit=100').catch(function (e) { return { error: String(e) }; }).then(function (d) { renderTelemetry($('#view-telemetry'), d); });
+        }
+      }
+
+      refresh();
+      setInterval(refresh, POLL_MS);
+    </script>
+  </body>
+</html>
