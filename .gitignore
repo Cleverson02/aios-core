@@ -346,3 +346,4 @@ docs/guides/glue-script-guide.md
 .aios/autonomy/
 plan/
 .aios/providers-status.json
+.aios/gateway/
