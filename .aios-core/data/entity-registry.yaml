@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-19T13:16:23.586Z'
-  entityCount: 527
+  lastUpdated: '2026-07-19T13:17:10.979Z'
+  entityCount: 528
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -8510,19 +8510,20 @@ entities:
     cli:
       path: .aios-core/core/dashboard/cli.js
       type: module
-      purpose: Entity at .aios-core/core/dashboard/cli.js
+      purpose: Entity at .aios-core/core/router/cli.js
       keywords:
         - cli
       usedBy:
         - index
       dependencies:
-        - server
+        - router
+        - cache-affinity
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:8dd9f9b3ffc25270fafcb16d4074a8e8c1b4a8052fb455f4acfd4a065caeeb01
-      lastVerified: '2026-07-19T13:16:23.582Z'
+      checksum: sha256:fb3b2111a1e2202cdfcde743aa5fe8334d7912219cd4963300ccabc9d2042797
+      lastVerified: '2026-07-19T13:17:10.977Z'
     area-index-template:
       path: .aios-core/core/workspace/templates/area-index-template.md
       type: module
@@ -8882,20 +8883,22 @@ entities:
     router:
       path: .aios-core/core/router/router.js
       type: module
-      purpose: text }).level;
+      purpose: string }>} items - Categorized subtasks.
       keywords:
         - router
-      usedBy: []
+      usedBy:
+        - cli
       dependencies:
         - matrix-loader
         - task-complexity-classifier
+        - cache-affinity
         - providers
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:420589561c5615dbc22940dd9f0a1f360fc7f603128b043495520b699121c02d
-      lastVerified: '2026-07-19T13:07:20.424Z'
+      checksum: sha256:817915dd49ea4371d6909d37a9b4abcc3dec1b4a831a0a5e1930d7bc270f263b
+      lastVerified: '2026-07-19T13:17:10.977Z'
     context-budget-manager:
       path: .aios-core/core/autonomy/context-budget-manager.js
       type: module
@@ -9174,7 +9177,6 @@ entities:
         - server
       usedBy:
         - index
-        - cli
       dependencies:
         - report
         - ledger
@@ -9186,6 +9188,23 @@ entities:
         extensionPoints: []
       checksum: sha256:d890a2e8a0810a1cea4e2781579e4d10afa11f085d46495509c86aadc4a0365e
       lastVerified: '2026-07-19T13:16:23.584Z'
+    cache-affinity:
+      path: .aios-core/core/router/cache-affinity.js
+      type: module
+      purpose: Entity at .aios-core/core/router/cache-affinity.js
+      keywords:
+        - cache
+        - affinity
+      usedBy:
+        - cli
+        - router
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:7a5d1fbbfcde8664019ce4a867135b730aae3777fee91b740766bd21f8dab21a
+      lastVerified: '2026-07-19T13:17:10.976Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md
