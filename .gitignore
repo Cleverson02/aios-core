@@ -342,3 +342,5 @@ docs/guides/glue-script-guide.md
 # AIOS runtime state (per-machine, not versioned)
 .aios/notifications/
 .aios/project-status.yaml
+.aios/autonomy/
+plan/
