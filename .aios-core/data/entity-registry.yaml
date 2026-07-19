@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-19T13:17:10.979Z'
-  entityCount: 528
+  lastUpdated: '2026-07-19T13:40:01.237Z'
+  entityCount: 531
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -5983,21 +5983,22 @@ entities:
       checksum: sha256:74ac4edc22f53a6e1ff7fe7d16add65b4e85e198dcdd0f54d3048ba032dc8f9a
       lastVerified: '2026-02-08T13:33:24.327Z'
     index:
-      path: .aios-core/core/dashboard/index.js
+      path: .aios-core/core/routines/index.js
       type: module
-      purpose: Entity at .aios-core/core/dashboard/index.js
+      purpose: Entity at .aios-core/core/routines/index.js
       keywords:
         - index
       usedBy: []
       dependencies:
-        - server
+        - registry
+        - scheduler
         - cli
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:a2e239e801755f55b6f89d506088c018afacb7ab613f6e50f714a7966991312e
-      lastVerified: '2026-07-19T13:16:23.583Z'
+      checksum: sha256:8c420fed1da3c64394bd68477300f427e6283d0d123e1554dd20e733d04e2cbd
+      lastVerified: '2026-07-19T13:40:01.234Z'
     config-cache:
       path: .aios-core/core/config/config-cache.js
       type: module
@@ -6464,6 +6465,7 @@ entities:
         - gemini-cli
         - github-cli
         - mcp-integration
+        - cortex-modules
       dependencies: []
       adaptability:
         score: 0.4
@@ -8508,22 +8510,22 @@ entities:
       checksum: sha256:db224469d08f2b0ae8b9e4961b950fc6325ba5cacab04047c8fb6f0eb0c6b614
       lastVerified: '2026-07-12T22:47:15.385Z'
     cli:
-      path: .aios-core/core/dashboard/cli.js
+      path: .aios-core/core/routines/cli.js
       type: module
-      purpose: Entity at .aios-core/core/router/cli.js
+      purpose: Entity at .aios-core/core/routines/cli.js
       keywords:
         - cli
       usedBy:
         - index
       dependencies:
-        - router
-        - cache-affinity
+        - registry
+        - scheduler
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:fb3b2111a1e2202cdfcde743aa5fe8334d7912219cd4963300ccabc9d2042797
-      lastVerified: '2026-07-19T13:17:10.977Z'
+      checksum: sha256:47071be871f2b0f069df03a0cf12f2dca72c2ba899e5eb08b30e8e00f7ff3d73
+      lastVerified: '2026-07-19T13:40:01.234Z'
     area-index-template:
       path: .aios-core/core/workspace/templates/area-index-template.md
       type: module
@@ -8886,8 +8888,7 @@ entities:
       purpose: string }>} items - Categorized subtasks.
       keywords:
         - router
-      usedBy:
-        - cli
+      usedBy: []
       dependencies:
         - matrix-loader
         - task-complexity-classifier
@@ -9175,8 +9176,7 @@ entities:
       purpose: Entity at .aios-core/core/dashboard/server.js
       keywords:
         - server
-      usedBy:
-        - index
+      usedBy: []
       dependencies:
         - report
         - ledger
@@ -9196,7 +9196,6 @@ entities:
         - cache
         - affinity
       usedBy:
-        - cli
         - router
       dependencies: []
       adaptability:
@@ -9205,6 +9204,59 @@ entities:
         extensionPoints: []
       checksum: sha256:7a5d1fbbfcde8664019ce4a867135b730aae3777fee91b740766bd21f8dab21a
       lastVerified: '2026-07-19T13:17:10.976Z'
+    cortex-modules:
+      path: .aios-core/core/health-check/checks/project/cortex-modules.js
+      type: module
+      purpose: '''Verifies AIOX Cortex modules are installed and reports Cortex runtime state'','
+      keywords:
+        - cortex
+        - modules
+      usedBy: []
+      dependencies:
+        - base-check
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:49063b9492d4447f89ea9be52e72e199c7427ba5a82532033c7bccabe16c7eb1
+      lastVerified: '2026-07-19T13:40:01.233Z'
+    registry:
+      path: .aios-core/core/routines/registry.js
+      type: module
+      purpose: Entity at .aios-core/core/routines/registry.js
+      keywords:
+        - registry
+      usedBy:
+        - index
+        - cli
+        - scheduler
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:05a47f7d9b6e706992170cf35932d6e7dd867df17d84308f14260ab3fff52721
+      lastVerified: '2026-07-19T13:40:01.235Z'
+    scheduler:
+      path: .aios-core/core/routines/scheduler.js
+      type: module
+      purpose: '`${r.filesIndexed} indexado(s), ${r.chunks} chunk(s)` };'
+      keywords:
+        - scheduler
+      usedBy:
+        - index
+        - cli
+      dependencies:
+        - registry
+        - brain
+        - radar
+        - gateway
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:46ab95136bc1b17d5162c92f07afafc1d8fa21ba3aa0ca8170ec1df746ec38ee
+      lastVerified: '2026-07-19T13:40:01.235Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md

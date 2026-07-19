@@ -42,7 +42,7 @@ Dex (Builder / @dev) — Opus 4.8
 
 ### File List (real)
 
-- `.aios-core/install-manifest.yaml` — regenerado (969 → 1064 arquivos)
+- `.aios-core/install-manifest.yaml` — regenerado (969 → 1069 arquivos)
 - `README.md` — nova seção "AIOX Cortex — Workspace Brain" (EN)
 - `.aios-core/core/health-check/checks/project/cortex-modules.js` — NOVO check `project.cortex-modules`
 - `.aios-core/core/health-check/checks/project/index.js` — registra `CortexModulesCheck` (mudança mínima, mecanismo real de auto-registro)
@@ -54,9 +54,9 @@ Dex (Builder / @dev) — Opus 4.8
 
 - **AC1 — Manifest**: `npm run generate:manifest` + `npm run validate:manifest` → VALID.
   - Antes: `file_count: 969`, 0 arquivos Cortex (manifest estava obsoleto).
-  - Depois (final, já com o novo check): `file_count: 1064`.
-  - Arquivos Cortex capturados = **77**: workspace 7, brain 23, router 9, autonomy 10, gateway 7, providers 6, telemetry 5, dashboard 5, guide 5.
-  - **NOTA p/ o lead**: `core/radar/` e `core/routines/` = 0 arquivos no manifest (ainda não existem — agentes em paralelo). O generate:manifest só captura o que está em disco; quando radar/routines forem finalizados, **regenerar o manifest** no fechamento da fase para incluí-los. Não toquei nesses diretórios.
+  - Depois (regen final desta story): `file_count: 1069`.
+  - Arquivos Cortex capturados: workspace 7, brain 23, router 9, autonomy 10, gateway 7, providers 6, telemetry 5, dashboard 5, guide 5 (= 77) + radar 5 e routines 5 (ver nota).
+  - **NOTA p/ o lead (IMPORTANTE)**: `core/radar/` e `core/routines/` estão sendo escritos por agentes em paralelo. Durante esta story o manifest ficou OUTDATED porque esses agentes criaram novos arquivos após minha regeneração; regenerei mais uma vez para deixar o manifest válido AGORA, capturando radar/routines em estado **parcial** (5 arquivos cada no momento). Como esses módulos ainda podem receber arquivos, **o lead DEVE rodar `npm run generate:manifest` uma última vez no fechamento da fase** para congelar o estado final. NÃO toquei em `core/radar/` nem `core/routines/`.
 - **AC2 — README**: seção inserida entre "ADE" e "Criando Seu Próprio Squad", EN, ~1 parágrafo + quickstart de 5 comandos + links para `docs/guides/primeiros-passos-cortex.md` e `docs/proposals/aios-workspace-brain/` (ambos existem). Tom CLI-first consistente.
 - **AC3/AC5 — Smoke**: install REAL rápido (~1.3s / 1079 arquivos), então roda em jest inline (timeout 30s, sem `describe.skip`). Descoberta técnica: os módulos instalados dependem de pacotes (fs-extra/js-yaml/fast-glob) resolvidos subindo a árvore; para requerer os barrels a partir do destino em `/tmp`, o teste cria um symlink `node_modules → node_modules do repo`. Assertivas: 9 dirs Cortex presentes, barrels `workspace`/`brain` carregam do destino, `WorkspaceManager.init` cria `workspace.yaml` + pastas PARA, `BrainIndexer.index({roots explícitos, brainDir em tmp})` gera `index.json`.
 - **AC4 — Health check**: `project.cortex-modules` segue o padrão exato de `aios-directory.js` (estende `BaseCheck`, auto-registrado via `checks/project/index.js`). Verifica presença dos 9 dirs em `core/{workspace,brain,router,autonomy,gateway,providers,telemetry,dashboard,guide}` (resolvidos relativos ao próprio módulo → inspeciona o framework instalado real). Informa estado (workspace.yaml?, índice do brain em `~/.aiox/brain/<hash>/index.json`?, `>=1` provider disponível via cache `.aios/providers-status.json`). **Severity LOW** → nunca derruba o doctor (roda em modo `full`; `quick` filtra CRITICAL/HIGH).
