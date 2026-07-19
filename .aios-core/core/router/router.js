@@ -188,10 +188,11 @@ class LlmRouter {
    * @param {string|Object} task - Task text or `{ description }`.
    * @param {Object} [options]
    * @param {string} [options.policy] - Force a policy (overrides task_routing).
+   * @param {boolean} [options.ignoreAvailability] - Skip the availability filter (WSB-4.4).
    * @returns {{ model: string, provider: string, category: string, complexity: string,
    *   policy: string, reason: string, alternatives: Array<{ model: string, why: string }> }}
    */
-  route(task, { policy: forcedPolicy } = {}) {
+  route(task, { policy: forcedPolicy, ignoreAvailability = false } = {}) {
     const text = this._text(task);
     const category = this.categorize(text);
     const complexity = this.classifier.classify({ description: text }).level;
@@ -217,12 +218,78 @@ class LlmRouter {
       );
     }
 
-    const candidates = this._relevantModels(category);
+    let candidates = this._relevantModels(category);
+
+    // WSB-4.4 AC3: honor provider availability (per the availability cache).
+    // NO-OP when the cache is absent (`null`) — routing behaves exactly as
+    // before wherever provider setup has not run.
+    const unavailable = ignoreAvailability ? null : this._unavailableProviders();
+    const isDown = (provider) => (unavailable ? unavailable.has(provider) : false);
+
+    // Within the category, drop unavailable providers — but never strand: if
+    // that would empty the set, keep the original (all-unavailable ⇒ neutral).
+    if (unavailable && unavailable.size) {
+      const filtered = candidates.filter((c) => !isDown(c.model.provider));
+      if (filtered.length) candidates = filtered;
+    }
 
     if (directModel) {
+      const directModelObj = this.matrix.models[directModel];
+      const directProvider = directModelObj && directModelObj.provider;
+      if (unavailable && directProvider && isDown(directProvider)) {
+        // Curated model's provider is down → re-route via the default policy
+        // among the AVAILABLE models (relevant first, else any available), and
+        // record the substitution in the reason. If nothing is available
+        // anywhere, stay neutral and keep the curated choice.
+        const pool = this._availablePool(category, isDown);
+        if (pool.length) {
+          const decision = this._policyDecision(this.matrix.default_policy, category, complexity, pool);
+          decision.reason = `${directModel} indisponível → roteado para ${decision.model}. ${decision.reason}`;
+          return decision;
+        }
+      }
       return this._directDecision(directModel, category, complexity, candidates);
     }
     return this._policyDecision(effectivePolicy, category, complexity, candidates);
+  }
+
+  /**
+   * Build a re-route pool of AVAILABLE models: category-relevant ones first, and
+   * when none of those are available, every available model in the matrix. Used
+   * only when a curated direct mapping points to a down provider.
+   *
+   * @param {string} category - Routing category.
+   * @param {(provider: string) => boolean} isDown - Availability predicate.
+   * @returns {Array<{ id: string, model: Object, matches: string[] }>}
+   * @private
+   */
+  _availablePool(category, isDown) {
+    const relevantAvailable = this._relevantModels(category).filter((c) => !isDown(c.model.provider));
+    if (relevantAvailable.length) return relevantAvailable;
+    return Object.entries(this.matrix.models)
+      .filter(([, model]) => !isDown(model.provider))
+      .map(([id, model]) => ({ id, model, matches: [...model.strengths] }));
+  }
+
+  /**
+   * Set of provider ids currently marked unavailable, read lazily from the
+   * provider-availability cache. Returns `null` (⇒ filter nothing) when the
+   * providers module or its cache is absent — this keeps routing behavior
+   * unchanged wherever WSB-4.4 has not been set up.
+   *
+   * @returns {Set<string>|null}
+   * @private
+   */
+  _unavailableProviders() {
+    try {
+      // Lazy require so the router has zero hard dependency on the providers
+      // module; any load/read failure degrades to "no filtering".
+      const providers = require('../providers');
+      if (!providers || typeof providers.unavailableProviders !== 'function') return null;
+      return providers.unavailableProviders({ cwd: this.projectRoot || process.cwd() });
+    } catch {
+      return null;
+    }
   }
 
   /**

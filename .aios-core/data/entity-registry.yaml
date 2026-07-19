@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-19T03:18:37.184Z'
-  entityCount: 515
+  lastUpdated: '2026-07-19T13:05:47.089Z'
+  entityCount: 517
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -5983,22 +5983,22 @@ entities:
       checksum: sha256:74ac4edc22f53a6e1ff7fe7d16add65b4e85e198dcdd0f54d3048ba032dc8f9a
       lastVerified: '2026-02-08T13:33:24.327Z'
     index:
-      path: .aios-core/core/router/index.js
+      path: .aios-core/core/telemetry/index.js
       type: module
-      purpose: Entity at .aios-core/core/router/index.js
+      purpose: Entity at .aios-core/core/telemetry/index.js
       keywords:
         - index
       usedBy: []
       dependencies:
-        - router
-        - matrix-loader
+        - ledger
+        - report
         - cli
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:17fb37b04ef447fd7538e81b015cbc8ea00490459bf7ea68ea89d82cfdacf452
-      lastVerified: '2026-07-13T04:12:19.587Z'
+      checksum: sha256:f8d2c9f6288e7447470e36a157f3c9faf3a1d33f467c7b1c3f701a567699352d
+      lastVerified: '2026-07-19T13:05:47.085Z'
     config-cache:
       path: .aios-core/core/config/config-cache.js
       type: module
@@ -8506,21 +8506,21 @@ entities:
       checksum: sha256:db224469d08f2b0ae8b9e4961b950fc6325ba5cacab04047c8fb6f0eb0c6b614
       lastVerified: '2026-07-12T22:47:15.385Z'
     cli:
-      path: .aios-core/core/router/cli.js
+      path: .aios-core/core/telemetry/cli.js
       type: module
-      purpose: Entity at .aios-core/core/router/cli.js
+      purpose: Entity at .aios-core/core/telemetry/cli.js
       keywords:
         - cli
       usedBy:
         - index
       dependencies:
-        - router
+        - report
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:8cb2df71d69fd24d6eb7203206fda77b33a2f0ce97251296d4fd3f9dbf817d4e
-      lastVerified: '2026-07-13T04:12:19.587Z'
+      checksum: sha256:9f0118e527d36a3dd8ea5ef4b00fa03e51d82b318b72556e524926d2e37891d0
+      lastVerified: '2026-07-19T13:05:47.085Z'
     area-index-template:
       path: .aios-core/core/workspace/templates/area-index-template.md
       type: module
@@ -8852,8 +8852,8 @@ entities:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:9f5dee9859b56c44062a25b8f1d3135676b58fa79f9c3645026bdeaeaf7ecdb5
-      lastVerified: '2026-07-13T04:12:19.586Z'
+      checksum: sha256:4ec1c31a09cc7612ee7f2ec68ba28bc0e3caa5934af342697c905cabf33b7789
+      lastVerified: '2026-07-19T13:05:47.083Z'
     matrix-loader:
       path: .aios-core/core/router/matrix-loader.js
       type: module
@@ -8862,8 +8862,8 @@ entities:
         - matrix
         - loader
       usedBy:
-        - index
         - router
+        - ledger
       dependencies:
         - capability-matrix-schema
       adaptability:
@@ -8878,9 +8878,7 @@ entities:
       purpose: text }).level;
       keywords:
         - router
-      usedBy:
-        - index
-        - cli
+      usedBy: []
       dependencies:
         - matrix-loader
         - task-complexity-classifier
@@ -8979,6 +8977,40 @@ entities:
         extensionPoints: []
       checksum: sha256:1427a9508146d621189071738cbacc9140d858b5631de03006124b86cccb97e3
       lastVerified: '2026-07-19T03:18:37.182Z'
+    ledger:
+      path: .aios-core/core/telemetry/ledger.js
+      type: module
+      purpose: Entity at .aios-core/core/telemetry/ledger.js
+      keywords:
+        - ledger
+      usedBy:
+        - index
+        - report
+      dependencies:
+        - matrix-loader
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:687b53607918f04fc594bdcb1b9c97214b0420116faf595f7b2847bd19f17cee
+      lastVerified: '2026-07-19T13:05:47.086Z'
+    report:
+      path: .aios-core/core/telemetry/report.js
+      type: module
+      purpose: Entity at .aios-core/core/telemetry/report.js
+      keywords:
+        - report
+      usedBy:
+        - index
+        - cli
+      dependencies:
+        - ledger
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:1a95fe24b9d55a625d5932dc6b39b9f8dd4be61ae4f5296a9eef47f1711b4367
+      lastVerified: '2026-07-19T13:05:47.086Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md
