@@ -73,6 +73,7 @@ async function runInit(flags) {
       console.log(`    ${chalk.gray(TIER_FOLDERS[tier])}`);
     }
     console.log(`  área de exemplo: ${chalk.gray(path.join(TIER_FOLDERS.areas, 'exemplo', '_index.md'))}`);
+    console.log(chalk.dim('\n  Próximo passo: aios brain index — depois, aios next te guia.'));
     return 0;
   } catch (error) {
     console.error(chalk.red(`✗ ${error.message}`));
