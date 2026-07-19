@@ -114,6 +114,14 @@ RUN / AUTONOMY (AIOX Cortex):
   aios run resume <story-id>             # Resume from latest handoff packet
   aios run handoff <story-id> [--spawn]  # Generate handoff packet (fresh window)
 
+EASY MODE (AIOX Cortex):
+  aios setup                             # Wizard: choose LLMs and register API keys
+  aios next [--explain]                  # What's the next agent/step? (no tokens)
+  aios providers list|set-key|enable     # Manage LLM keys and availability
+  aios costs summary [--by provider]     # Token/cost telemetry (incl. cache)
+  aios dashboard start                   # Local observability panel (costs, agents)
+  aios gateway start|pair                # Telegram remote control
+
 SERVICE DISCOVERY:
   aios workers search <query>            # Search for workers
   aios workers search "json" --category=data
@@ -1100,6 +1108,77 @@ async function main() {
         if (exitCode) process.exitCode = exitCode;
       } catch (error) {
         console.error(`❌ Run command error: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+
+    case 'providers':
+      // Provider setup (keys, availability) - Story WSB-4.4
+      try {
+        const { providersCommand } = require('../.aios-core/core/providers');
+        const exitCode = await providersCommand(args.slice(1));
+        if (exitCode) process.exitCode = exitCode;
+      } catch (error) {
+        console.error(`❌ Providers command error: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+
+    case 'setup':
+      // Post-install setup wizard - Story WSB-4.4
+      try {
+        const { runSetup } = require('../.aios-core/core/providers');
+        await runSetup({ nonInteractive: args.includes('--non-interactive') });
+      } catch (error) {
+        console.error(`❌ Setup error: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+
+    case 'costs':
+      // Token/cost telemetry - Story WSB-4.5
+      try {
+        const { costsCommand } = require('../.aios-core/core/telemetry');
+        const exitCode = await costsCommand(args.slice(1));
+        if (exitCode) process.exitCode = exitCode;
+      } catch (error) {
+        console.error(`❌ Costs command error: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+
+    case 'gateway':
+      // Telegram gateway - Story WSB-4.1
+      try {
+        const { gatewayCommand } = require('../.aios-core/core/gateway');
+        const exitCode = await gatewayCommand(args.slice(1));
+        if (exitCode) process.exitCode = exitCode;
+      } catch (error) {
+        console.error(`❌ Gateway command error: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+
+    case 'dashboard':
+      // Local observability dashboard - Story WSB-4.7
+      try {
+        const { dashboardCommand } = require('../.aios-core/core/dashboard');
+        const exitCode = await dashboardCommand(args.slice(1));
+        if (exitCode) process.exitCode = exitCode;
+      } catch (error) {
+        console.error(`❌ Dashboard command error: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+
+    case 'next':
+      // Guided mode (what's the next step?) - Story WSB-4.8
+      try {
+        const { nextCommand } = require('../.aios-core/core/guide');
+        const exitCode = await nextCommand(args.slice(1));
+        if (exitCode) process.exitCode = exitCode;
+      } catch (error) {
+        console.error(`❌ Next command error: ${error.message}`);
         process.exit(1);
       }
       break;
