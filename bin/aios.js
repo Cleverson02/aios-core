@@ -121,6 +121,8 @@ EASY MODE (AIOX Cortex):
   aios costs summary [--by provider]     # Token/cost telemetry (incl. cache)
   aios dashboard start                   # Local observability panel (costs, agents)
   aios gateway start|pair                # Telegram remote control
+  aios radar scan|report                 # Business opportunity radar (deterministic)
+  aios routines list|start               # Scheduled routines (index, digest, radar)
 
 SERVICE DISCOVERY:
   aios workers search <query>            # Search for workers
@@ -1181,6 +1183,30 @@ async function main() {
         if (exitCode) process.exitCode = exitCode;
       } catch (error) {
         console.error(`❌ Next command error: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+
+    case 'radar':
+      // Opportunity radar - Story WSB-5.1
+      try {
+        const { radarCommand } = require('../.aios-core/core/radar');
+        const exitCode = await radarCommand(args.slice(1));
+        if (exitCode) process.exitCode = exitCode;
+      } catch (error) {
+        console.error(`❌ Radar command error: ${error.message}`);
+        process.exit(1);
+      }
+      break;
+
+    case 'routines':
+      // Scheduled routines - Story WSB-5.2
+      try {
+        const { routinesCommand } = require('../.aios-core/core/routines');
+        const exitCode = await routinesCommand(args.slice(1));
+        if (exitCode) process.exitCode = exitCode;
+      } catch (error) {
+        console.error(`❌ Routines command error: ${error.message}`);
         process.exit(1);
       }
       break;

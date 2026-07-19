@@ -78,15 +78,16 @@ describe('Health Check System', () => {
       assert.ok(domains.includes('services'), 'Should include services');
     });
 
-    it('should have 34 total checks', () => {
+    it('should have 35 total checks', () => {
       const counts = healthCheck.getCheckCounts();
       const total = Object.values(counts).reduce((a, b) => a + b, 0);
-      assert.strictEqual(total, 34, 'Should have 34 total checks');
+      assert.strictEqual(total, 35, 'Should have 35 total checks');
     });
 
     it('should have correct check distribution', () => {
       const counts = healthCheck.getCheckCounts();
-      assert.strictEqual(counts.project, 8, 'Project should have 8 checks');
+      // WSB-5.3: added project.cortex-modules (8 → 9 project checks).
+      assert.strictEqual(counts.project, 9, 'Project should have 9 checks');
       assert.strictEqual(counts.local, 8, 'Local should have 8 checks');
       assert.strictEqual(counts.repository, 8, 'Repository should have 8 checks');
       assert.strictEqual(counts.deployment, 5, 'Deployment should have 5 checks');

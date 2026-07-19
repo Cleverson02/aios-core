@@ -17,6 +17,7 @@ const AiosDirectoryCheck = require('./aios-directory');
 const AgentConfigCheck = require('./agent-config');
 const TaskDefinitionsCheck = require('./task-definitions');
 const WorkflowDependenciesCheck = require('./workflow-dependencies');
+const CortexModulesCheck = require('./cortex-modules');
 
 /**
  * All project domain checks
@@ -30,4 +31,5 @@ module.exports = {
   AgentConfigCheck,
   TaskDefinitionsCheck,
   WorkflowDependenciesCheck,
+  CortexModulesCheck,
 };
