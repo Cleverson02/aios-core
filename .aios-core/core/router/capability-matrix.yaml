@@ -13,6 +13,19 @@
 # @see .aios-core/core/router/capability-matrix-schema.json (validation)
 # @see .aios-core/core/router/matrix-loader.js (load + merge + semantic checks)
 
+# Pricing (Story WSB-4.5 — telemetria de custos)
+# ------------------------------------------------------------------------------
+# Cada modelo pode declarar um bloco `pricing` opcional, em USD por MILHÃO de
+# tokens (`per_mtok`). Chaves:
+#   - input_per_mtok         : tokens de entrada (prompt) normais
+#   - output_per_mtok        : tokens de saída (completion)
+#   - cached_input_per_mtok  : tokens de entrada servidos do cache (~10% do input)
+#   - cache_write_per_mtok   : (opcional) custo de gravar o prompt no cache
+#
+# Os valores abaixo são DEFAULTS de referência — AJUSTE AOS PREÇOS VIGENTES DO
+# SEU CONTRATO com cada provider. O ledger (core/telemetry) usa estes números
+# para calcular custo; modelo sem `pricing` → custo `null` (tokens ainda contam).
+
 version: 1
 
 models:
@@ -22,6 +35,12 @@ models:
     cost_tier: high
     speed_tier: medium
     notes: 'Topo de capacidade geral; reservado para decisões de arquitetura e review crítico.'
+    # ajuste aos preços vigentes do seu contrato (USD / milhão de tokens)
+    pricing:
+      input_per_mtok: 15
+      output_per_mtok: 75
+      cached_input_per_mtok: 1.5
+      cache_write_per_mtok: 18.75
 
   gpt-5.5-codex:
     provider: openai
@@ -29,6 +48,12 @@ models:
     cost_tier: medium
     speed_tier: medium
     notes: 'Modelo agêntico de coding mais forte da OpenAI (82,7% Terminal-Bench 2.0).'
+    # ajuste aos preços vigentes do seu contrato (USD / milhão de tokens)
+    pricing:
+      input_per_mtok: 5
+      output_per_mtok: 20
+      cached_input_per_mtok: 0.5
+      cache_write_per_mtok: 5
 
   grok-4-5:
     provider: xai
@@ -36,6 +61,12 @@ models:
     cost_tier: low
     speed_tier: fast
     notes: 'Co-treinado com Cursor; ~2x token efficiency; $2/M in, $6/M out.'
+    # ajuste aos preços vigentes do seu contrato (USD / milhão de tokens) — anúncio xAI
+    pricing:
+      input_per_mtok: 2
+      output_per_mtok: 6
+      cached_input_per_mtok: 0.5
+      cache_write_per_mtok: 2.5
 
   gemini-2.x:
     provider: google
@@ -43,6 +74,12 @@ models:
     cost_tier: low
     speed_tier: fast
     notes: 'Barato para volume de contexto longo e multimodal; já suportado pelo dispatcher atual.'
+    # ajuste aos preços vigentes do seu contrato (USD / milhão de tokens)
+    pricing:
+      input_per_mtok: 1
+      output_per_mtok: 4
+      cached_input_per_mtok: 0.25
+      cache_write_per_mtok: 1
 
 # Policies decide the model when a task category maps to `policy:<name>` (or when
 # the caller passes `{ policy }` explicitly). See router.js for the exact algorithm.

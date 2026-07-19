@@ -130,6 +130,7 @@ lcov-report/
 # AIOS temporary build/analysis files
 .aios/reports/
 .aios/temp-*.js
+.aios/telemetry/
 
 # Build outputs (generated from source)
 aios-core/index.d.ts
