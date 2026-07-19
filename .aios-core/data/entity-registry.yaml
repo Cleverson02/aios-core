@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-19T13:40:01.237Z'
-  entityCount: 531
+  lastUpdated: '2026-07-19T13:45:11.653Z'
+  entityCount: 534
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -5983,22 +5983,23 @@ entities:
       checksum: sha256:74ac4edc22f53a6e1ff7fe7d16add65b4e85e198dcdd0f54d3048ba032dc8f9a
       lastVerified: '2026-02-08T13:33:24.327Z'
     index:
-      path: .aios-core/core/routines/index.js
+      path: .aios-core/core/radar/index.js
       type: module
-      purpose: Entity at .aios-core/core/routines/index.js
+      purpose: Entity at .aios-core/core/radar/index.js
       keywords:
         - index
       usedBy: []
       dependencies:
-        - registry
-        - scheduler
+        - collectors
+        - heuristics
+        - synthesizer
         - cli
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:8c420fed1da3c64394bd68477300f427e6283d0d123e1554dd20e733d04e2cbd
-      lastVerified: '2026-07-19T13:40:01.234Z'
+      checksum: sha256:a5a44f410a61a6260b4ae2c718b789362bd8f80afeff3e489d3b69f52794c152
+      lastVerified: '2026-07-19T13:45:11.651Z'
     config-cache:
       path: .aios-core/core/config/config-cache.js
       type: module
@@ -8510,22 +8511,23 @@ entities:
       checksum: sha256:db224469d08f2b0ae8b9e4961b950fc6325ba5cacab04047c8fb6f0eb0c6b614
       lastVerified: '2026-07-12T22:47:15.385Z'
     cli:
-      path: .aios-core/core/routines/cli.js
+      path: .aios-core/core/radar/cli.js
       type: module
-      purpose: Entity at .aios-core/core/routines/cli.js
+      purpose: Entity at .aios-core/core/radar/cli.js
       keywords:
         - cli
       usedBy:
         - index
       dependencies:
-        - registry
-        - scheduler
+        - collectors
+        - heuristics
+        - synthesizer
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:47071be871f2b0f069df03a0cf12f2dca72c2ba899e5eb08b30e8e00f7ff3d73
-      lastVerified: '2026-07-19T13:40:01.234Z'
+      checksum: sha256:0d9e30be0ea91abd2f3bd566f9c8d9146a7e0b7c6abe8eca16dca629bb21de7f
+      lastVerified: '2026-07-19T13:45:11.650Z'
     area-index-template:
       path: .aios-core/core/workspace/templates/area-index-template.md
       type: module
@@ -8605,6 +8607,7 @@ entities:
         - digest
         - commands
         - project-state
+        - collectors
       dependencies:
         - chunker
         - lexical-search
@@ -8752,6 +8755,7 @@ entities:
         - query
         - hot-index
         - digest
+        - collectors
       dependencies: []
       adaptability:
         score: 0.4
@@ -8888,7 +8892,8 @@ entities:
       purpose: string }>} items - Categorized subtasks.
       keywords:
         - router
-      usedBy: []
+      usedBy:
+        - synthesizer
       dependencies:
         - matrix-loader
         - task-complexity-classifier
@@ -9227,8 +9232,6 @@ entities:
       keywords:
         - registry
       usedBy:
-        - index
-        - cli
         - scheduler
       dependencies: []
       adaptability:
@@ -9243,9 +9246,7 @@ entities:
       purpose: '`${r.filesIndexed} indexado(s), ${r.chunks} chunk(s)` };'
       keywords:
         - scheduler
-      usedBy:
-        - index
-        - cli
+      usedBy: []
       dependencies:
         - registry
         - brain
@@ -9257,6 +9258,60 @@ entities:
         extensionPoints: []
       checksum: sha256:46ab95136bc1b17d5162c92f07afafc1d8fa21ba3aa0ca8170ec1df746ec38ee
       lastVerified: '2026-07-19T13:40:01.235Z'
+    collectors:
+      path: .aios-core/core/radar/collectors.js
+      type: module
+      purpose: Entity at .aios-core/core/radar/collectors.js
+      keywords:
+        - collectors
+      usedBy:
+        - index
+        - cli
+      dependencies:
+        - entity-store
+        - indexer
+        - telemetry
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:9946455b44a4778ac4ede598a3def145e47a1d6f857e82c7d57aa5f261c64fa5
+      lastVerified: '2026-07-19T13:45:11.651Z'
+    heuristics:
+      path: .aios-core/core/radar/heuristics.js
+      type: module
+      purpose: Entity at .aios-core/core/radar/heuristics.js
+      keywords:
+        - heuristics
+      usedBy:
+        - index
+        - cli
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:72d1432b13da0b9689208cd31e43c880150f86bf38f6df751acde3c953af15fe
+      lastVerified: '2026-07-19T13:45:11.651Z'
+    synthesizer:
+      path: .aios-core/core/radar/synthesizer.js
+      type: module
+      purpose: Entity at .aios-core/core/radar/synthesizer.js
+      keywords:
+        - synthesizer
+      usedBy:
+        - index
+        - cli
+      dependencies:
+        - providers
+        - router
+        - ai-provider-factory
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:cebae6df685aae1a6f39a038c76817ae3840d5771f35c083abe81351250e56de
+      lastVerified: '2026-07-19T13:45:11.652Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md
