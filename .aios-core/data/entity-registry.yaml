@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-19T03:18:00.691Z'
-  entityCount: 513
+  lastUpdated: '2026-07-19T03:18:37.184Z'
+  entityCount: 515
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -6274,6 +6274,7 @@ entities:
         - autonomous-build-loop
         - build-orchestrator
         - handoff-packet
+        - heartbeat
       dependencies:
         - stuck-detector
         - recovery-tracker
@@ -7071,6 +7072,7 @@ entities:
         - bob-orchestrator
         - brownfield-handler
         - greenfield-handler
+        - escalation
       dependencies: []
       adaptability:
         score: 0.4
@@ -7344,6 +7346,7 @@ entities:
       usedBy:
         - human-review-orchestrator
         - quality-gate-manager
+        - escalation
       dependencies: []
       adaptability:
         score: 0.4
@@ -8895,7 +8898,8 @@ entities:
         - context
         - budget
         - manager
-      usedBy: []
+      usedBy:
+        - heartbeat
       dependencies:
         - epic-context-accumulator
         - session-state
@@ -8941,6 +8945,40 @@ entities:
         extensionPoints: []
       checksum: sha256:49036afb5a853b6012e775c33255b4794494eef11be8874b8ec68c5fe5c1fdb0
       lastVerified: '2026-07-19T03:18:00.688Z'
+    escalation:
+      path: .aios-core/core/autonomy/escalation.js
+      type: module
+      purpose: context.lastError || context.error || 'sem detalhes',
+      keywords:
+        - escalation
+      usedBy:
+        - heartbeat
+      dependencies:
+        - surface-checker
+        - notification-manager
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:a0f8741cc9f8c50734042920940e631fd214465d5d530a6716397e1e498c5dec
+      lastVerified: '2026-07-19T03:18:37.182Z'
+    heartbeat:
+      path: .aios-core/core/autonomy/heartbeat.js
+      type: module
+      purpose: Entity at .aios-core/core/autonomy/heartbeat.js
+      keywords:
+        - heartbeat
+      usedBy: []
+      dependencies:
+        - build-state-manager
+        - context-budget-manager
+        - escalation
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:1427a9508146d621189071738cbacc9140d858b5631de03006124b86cccb97e3
+      lastVerified: '2026-07-19T03:18:37.182Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md
