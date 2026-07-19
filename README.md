@@ -510,6 +510,22 @@ User Request → Spec Pipeline → Execution Engine → QA Review → Working Co
 
 - `*execute-subtask`, `*track-attempt`, `*rollback`, `*capture-insights`, `*list-gotchas`, `*apply-qa-fix`
 
+## AIOX Cortex — Workspace Brain
+
+**AIOX Cortex** turns AIOS into a company-wide workspace and a local-first "second brain". It indexes your projects, notes and business entities into a private, on-disk knowledge base (nothing leaves your machine unless you say so), then reasons over it with a multi-LLM router that is cache-aware: it accounts for the real economics of switching models — prompt-cache hits, token costs and provider availability — so you spend less for the same result. An autonomy engine keeps long-running work moving with heartbeats, context budgets and escalation, while a Telegram gateway lets you approve or steer work from your phone. A local dashboard gives read-only observability into what the CLI is doing, and a guided mode walks newcomers from zero to their first result.
+
+Quickstart:
+
+```bash
+aios setup             # configure providers (LLM keys/CLIs) and defaults
+aios workspace init    # scaffold a PARA workspace (workspace.yaml + folders)
+aios brain index --vectors   # build the local brain index (lexical + vectors)
+aios next              # let the guide suggest your next best step
+aios dashboard start   # open the local observability dashboard
+```
+
+Everything runs 100% via the CLI first — the dashboard only observes, never controls. To go deeper, see the getting-started guide at [docs/guides/primeiros-passos-cortex.md](docs/guides/primeiros-passos-cortex.md) and the full design proposals under [docs/proposals/aios-workspace-brain/](docs/proposals/aios-workspace-brain/).
+
 ## Criando Seu Próprio Squad
 
 Expansion packs permitem estender o AIOS para qualquer domínio. Estrutura básica:
