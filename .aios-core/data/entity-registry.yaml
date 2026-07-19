@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-19T03:15:58.977Z'
-  entityCount: 511
+  lastUpdated: '2026-07-19T03:18:00.691Z'
+  entityCount: 513
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -6273,6 +6273,7 @@ entities:
       usedBy:
         - autonomous-build-loop
         - build-orchestrator
+        - handoff-packet
       dependencies:
         - stuck-detector
         - recovery-tracker
@@ -6651,6 +6652,7 @@ entities:
         - ideation-engine
         - active-modules.verify
         - digest
+        - handoff-packet
       dependencies: []
       adaptability:
         score: 0.4
@@ -7122,6 +7124,7 @@ entities:
       usedBy:
         - greenfield-handler
         - workflow-executor
+        - fresh-window
       dependencies: []
       adaptability:
         score: 0.4
@@ -8474,6 +8477,7 @@ entities:
       usedBy:
         - context-injector
         - digest
+        - handoff-packet
       dependencies: []
       adaptability:
         score: 0.4
@@ -8901,6 +8905,42 @@ entities:
         extensionPoints: []
       checksum: sha256:4e2b59094ac1eef4572736d7a30036d6130fb2d3ca4003a076e553b73378a9db
       lastVerified: '2026-07-19T03:15:58.974Z'
+    fresh-window:
+      path: .aios-core/core/autonomy/fresh-window.js
+      type: module
+      purpose: Entity at .aios-core/core/autonomy/fresh-window.js
+      keywords:
+        - fresh
+        - window
+      usedBy: []
+      dependencies:
+        - handoff-packet
+        - terminal-spawner
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:6c217d7204e2829fa6c3a95ac0bac81402fbea13b09d44cd424ea5c36e7dd60f
+      lastVerified: '2026-07-19T03:18:00.687Z'
+    handoff-packet:
+      path: .aios-core/core/autonomy/handoff-packet.js
+      type: module
+      purpose: Entity at .aios-core/core/autonomy/handoff-packet.js
+      keywords:
+        - handoff
+        - packet
+      usedBy:
+        - fresh-window
+      dependencies:
+        - build-state-manager
+        - session-memory
+        - gotchas-memory
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:49036afb5a853b6012e775c33255b4794494eef11be8874b8ec68c5fe5c1fdb0
+      lastVerified: '2026-07-19T03:18:00.688Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md
