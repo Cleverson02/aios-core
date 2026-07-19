@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-13T04:34:40.942Z'
-  entityCount: 510
+  lastUpdated: '2026-07-19T03:15:58.977Z'
+  entityCount: 511
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -6848,7 +6848,8 @@ entities:
         - epic
         - context
         - accumulator
-      usedBy: []
+      usedBy:
+        - context-budget-manager
       dependencies: []
       adaptability:
         score: 0.4
@@ -7015,6 +7016,7 @@ entities:
         - brownfield-handler
         - greenfield-handler
         - workflow-executor
+        - context-budget-manager
       dependencies: []
       adaptability:
         score: 0.4
@@ -8881,6 +8883,24 @@ entities:
         extensionPoints: []
       checksum: sha256:32c5741b038f754a598b536bd5f79ed8e616a9954b80ffa114098c1c9403b68e
       lastVerified: '2026-07-13T04:12:19.587Z'
+    context-budget-manager:
+      path: .aios-core/core/autonomy/context-budget-manager.js
+      type: module
+      purpose: Entity at .aios-core/core/autonomy/context-budget-manager.js
+      keywords:
+        - context
+        - budget
+        - manager
+      usedBy: []
+      dependencies:
+        - epic-context-accumulator
+        - session-state
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:4e2b59094ac1eef4572736d7a30036d6130fb2d3ca4003a076e553b73378a9db
+      lastVerified: '2026-07-19T03:15:58.974Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md
