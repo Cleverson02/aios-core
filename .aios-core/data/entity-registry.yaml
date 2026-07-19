@@ -1,7 +1,7 @@
 metadata:
   version: 1.0.0
-  lastUpdated: '2026-07-19T03:18:37.184Z'
-  entityCount: 515
+  lastUpdated: '2026-07-19T13:17:10.979Z'
+  entityCount: 528
   checksumAlgorithm: sha256
 entities:
   tasks:
@@ -5983,22 +5983,21 @@ entities:
       checksum: sha256:74ac4edc22f53a6e1ff7fe7d16add65b4e85e198dcdd0f54d3048ba032dc8f9a
       lastVerified: '2026-02-08T13:33:24.327Z'
     index:
-      path: .aios-core/core/router/index.js
+      path: .aios-core/core/dashboard/index.js
       type: module
-      purpose: Entity at .aios-core/core/router/index.js
+      purpose: Entity at .aios-core/core/dashboard/index.js
       keywords:
         - index
       usedBy: []
       dependencies:
-        - router
-        - matrix-loader
+        - server
         - cli
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:17fb37b04ef447fd7538e81b015cbc8ea00490459bf7ea68ea89d82cfdacf452
-      lastVerified: '2026-07-13T04:12:19.587Z'
+      checksum: sha256:a2e239e801755f55b6f89d506088c018afacb7ab613f6e50f714a7966991312e
+      lastVerified: '2026-07-19T13:16:23.583Z'
     config-cache:
       path: .aios-core/core/config/config-cache.js
       type: module
@@ -6275,6 +6274,8 @@ entities:
         - build-orchestrator
         - handoff-packet
         - heartbeat
+        - commands
+        - server
       dependencies:
         - stuck-detector
         - recovery-tracker
@@ -7436,6 +7437,7 @@ entities:
         - context-loading
         - unified-activation-pipeline
         - index.esm
+        - next-step
       dependencies:
         - context-detector
       adaptability:
@@ -8506,7 +8508,7 @@ entities:
       checksum: sha256:db224469d08f2b0ae8b9e4961b950fc6325ba5cacab04047c8fb6f0eb0c6b614
       lastVerified: '2026-07-12T22:47:15.385Z'
     cli:
-      path: .aios-core/core/router/cli.js
+      path: .aios-core/core/dashboard/cli.js
       type: module
       purpose: Entity at .aios-core/core/router/cli.js
       keywords:
@@ -8515,12 +8517,13 @@ entities:
         - index
       dependencies:
         - router
+        - cache-affinity
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:8cb2df71d69fd24d6eb7203206fda77b33a2f0ce97251296d4fd3f9dbf817d4e
-      lastVerified: '2026-07-13T04:12:19.587Z'
+      checksum: sha256:fb3b2111a1e2202cdfcde743aa5fe8334d7912219cd4963300ccabc9d2042797
+      lastVerified: '2026-07-19T13:17:10.977Z'
     area-index-template:
       path: .aios-core/core/workspace/templates/area-index-template.md
       type: module
@@ -8565,7 +8568,8 @@ entities:
       keywords:
         - workspace
         - manager
-      usedBy: []
+      usedBy:
+        - project-state
       dependencies:
         - workspace-schema
       adaptability:
@@ -8597,6 +8601,8 @@ entities:
         - indexer
       usedBy:
         - digest
+        - commands
+        - project-state
       dependencies:
         - chunker
         - lexical-search
@@ -8824,7 +8830,8 @@ entities:
       purpose: 'typeof flags.summary === ''string'' ? flags.summary : undefined,'
       keywords:
         - digest
-      usedBy: []
+      usedBy:
+        - commands
       dependencies:
         - session-memory
         - gotchas-memory
@@ -8852,8 +8859,8 @@ entities:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:9f5dee9859b56c44062a25b8f1d3135676b58fa79f9c3645026bdeaeaf7ecdb5
-      lastVerified: '2026-07-13T04:12:19.586Z'
+      checksum: sha256:4ec1c31a09cc7612ee7f2ec68ba28bc0e3caa5934af342697c905cabf33b7789
+      lastVerified: '2026-07-19T13:05:47.083Z'
     matrix-loader:
       path: .aios-core/core/router/matrix-loader.js
       type: module
@@ -8862,8 +8869,9 @@ entities:
         - matrix
         - loader
       usedBy:
-        - index
         - router
+        - ledger
+        - availability
       dependencies:
         - capability-matrix-schema
       adaptability:
@@ -8875,21 +8883,22 @@ entities:
     router:
       path: .aios-core/core/router/router.js
       type: module
-      purpose: text }).level;
+      purpose: string }>} items - Categorized subtasks.
       keywords:
         - router
       usedBy:
-        - index
         - cli
       dependencies:
         - matrix-loader
         - task-complexity-classifier
+        - cache-affinity
+        - providers
       adaptability:
         score: 0.4
         constraints: []
         extensionPoints: []
-      checksum: sha256:32c5741b038f754a598b536bd5f79ed8e616a9954b80ffa114098c1c9403b68e
-      lastVerified: '2026-07-13T04:12:19.587Z'
+      checksum: sha256:817915dd49ea4371d6909d37a9b4abcc3dec1b4a831a0a5e1930d7bc270f263b
+      lastVerified: '2026-07-19T13:17:10.977Z'
     context-budget-manager:
       path: .aios-core/core/autonomy/context-budget-manager.js
       type: module
@@ -8979,6 +8988,223 @@ entities:
         extensionPoints: []
       checksum: sha256:1427a9508146d621189071738cbacc9140d858b5631de03006124b86cccb97e3
       lastVerified: '2026-07-19T03:18:37.182Z'
+    ledger:
+      path: .aios-core/core/telemetry/ledger.js
+      type: module
+      purpose: Entity at .aios-core/core/telemetry/ledger.js
+      keywords:
+        - ledger
+      usedBy:
+        - report
+        - server
+      dependencies:
+        - matrix-loader
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:687b53607918f04fc594bdcb1b9c97214b0420116faf595f7b2847bd19f17cee
+      lastVerified: '2026-07-19T13:05:47.086Z'
+    report:
+      path: .aios-core/core/telemetry/report.js
+      type: module
+      purpose: Entity at .aios-core/core/telemetry/report.js
+      keywords:
+        - report
+      usedBy:
+        - server
+      dependencies:
+        - ledger
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:1a95fe24b9d55a625d5932dc6b39b9f8dd4be61ae4f5296a9eef47f1711b4367
+      lastVerified: '2026-07-19T13:05:47.086Z'
+    availability:
+      path: .aios-core/core/providers/availability.js
+      type: module
+      purpose: Entity at .aios-core/core/providers/availability.js
+      keywords:
+        - availability
+      usedBy:
+        - setup-wizard
+      dependencies:
+        - matrix-loader
+        - credentials-store
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:135515dd239760fb3c74cac86adccd89ef7bb31c79cdf771cd917f86a4199f58
+      lastVerified: '2026-07-19T13:07:20.422Z'
+    credentials-store:
+      path: .aios-core/core/providers/credentials-store.js
+      type: module
+      purpose: Entity at .aios-core/core/providers/credentials-store.js
+      keywords:
+        - credentials
+        - store
+      usedBy:
+        - availability
+        - setup-wizard
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:e0ea87382ee7032585187df2194bada713e126cc9f058804f2393d2bc6810124
+      lastVerified: '2026-07-19T13:07:20.424Z'
+    setup-wizard:
+      path: .aios-core/core/providers/setup-wizard.js
+      type: module
+      purpose: Entity at .aios-core/core/providers/setup-wizard.js
+      keywords:
+        - setup
+        - wizard
+      usedBy: []
+      dependencies:
+        - credentials-store
+        - availability
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:a96f4f2867086e05df90b1cd29040e931e6734f1ff27157d80f28ed9221e8000
+      lastVerified: '2026-07-19T13:07:20.424Z'
+    commands:
+      path: .aios-core/core/gateway/commands.js
+      type: module
+      purpose: Entity at .aios-core/core/gateway/commands.js
+      keywords:
+        - commands
+      usedBy: []
+      dependencies:
+        - build-state-manager
+        - indexer
+        - digest
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:c384dc854402f568284d2a7dffba72717534e814cf08791bf69c379a293a92bc
+      lastVerified: '2026-07-19T13:11:43.300Z'
+    escalation-watcher:
+      path: .aios-core/core/gateway/escalation-watcher.js
+      type: module
+      purpose: Entity at .aios-core/core/gateway/escalation-watcher.js
+      keywords:
+        - escalation
+        - watcher
+      usedBy: []
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:4d315fd298f6182e7ef7a86760402f0886846ee17e6cf05161c6b8b3c0d86519
+      lastVerified: '2026-07-19T13:11:43.300Z'
+    pairing:
+      path: .aios-core/core/gateway/pairing.js
+      type: module
+      purpose: Entity at .aios-core/core/gateway/pairing.js
+      keywords:
+        - pairing
+      usedBy: []
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:bd40a345e5b4915d95eca8cfd028a2f7eaa424cf08744cd812e5d2216021e2c6
+      lastVerified: '2026-07-19T13:11:43.301Z'
+    telegram-client:
+      path: .aios-core/core/gateway/telegram-client.js
+      type: module
+      purpose: Entity at .aios-core/core/gateway/telegram-client.js
+      keywords:
+        - telegram
+        - client
+      usedBy: []
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:4a072639a3cb8449ff5d4f18dc36c8b69ca113d0568bedc926903ae811056e56
+      lastVerified: '2026-07-19T13:11:43.301Z'
+    next-step:
+      path: .aios-core/core/guide/next-step.js
+      type: module
+      purpose: Entity at .aios-core/core/guide/next-step.js
+      keywords:
+        - next
+        - step
+      usedBy: []
+      dependencies:
+        - project-state
+        - context-loader
+        - workflow-intelligence
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:ea9867cec013ba9103af26d211fbf06f2dd86e5e123f9afb8a20013a187466d4
+      lastVerified: '2026-07-19T13:15:10.808Z'
+    project-state:
+      path: .aios-core/core/guide/project-state.js
+      type: module
+      purpose: Entity at .aios-core/core/guide/project-state.js
+      keywords:
+        - project
+        - state
+      usedBy:
+        - next-step
+      dependencies:
+        - workspace-manager
+        - indexer
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:59a427f2f678d155ceb50db04f93da216fe1c42aebaf0162601a2763ef377a50
+      lastVerified: '2026-07-19T13:15:10.808Z'
+    server:
+      path: .aios-core/core/dashboard/server.js
+      type: module
+      purpose: Entity at .aios-core/core/dashboard/server.js
+      keywords:
+        - server
+      usedBy:
+        - index
+      dependencies:
+        - report
+        - ledger
+        - build-state-manager
+        - package
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:d890a2e8a0810a1cea4e2781579e4d10afa11f085d46495509c86aadc4a0365e
+      lastVerified: '2026-07-19T13:16:23.584Z'
+    cache-affinity:
+      path: .aios-core/core/router/cache-affinity.js
+      type: module
+      purpose: Entity at .aios-core/core/router/cache-affinity.js
+      keywords:
+        - cache
+        - affinity
+      usedBy:
+        - cli
+        - router
+      dependencies: []
+      adaptability:
+        score: 0.4
+        constraints: []
+        extensionPoints: []
+      checksum: sha256:7a5d1fbbfcde8664019ce4a867135b730aae3777fee91b740766bd21f8dab21a
+      lastVerified: '2026-07-19T13:17:10.976Z'
   agents:
     aios-master:
       path: .aios-core/development/agents/aios-master.md

@@ -18,6 +18,7 @@
 
 const chalk = require('chalk');
 const { LlmRouter } = require('./router');
+const { switchCost, formatUsd } = require('./cache-affinity');
 
 /**
  * Dispatch a `route` subcommand.
@@ -54,7 +55,7 @@ function routeCommand(args = []) {
 // ═══════════════════════════════════════════════════════════════════════════════════
 
 /**
- * `route suggest "<task>" [--policy X]` — advisor mode.
+ * `route suggest "<task>" [--policy X] [--incumbent M --cached N --new N --out N]` — advisor mode.
  *
  * @param {string[]} positionals - Task terms.
  * @param {Object} flags - Parsed flags.
@@ -63,13 +64,24 @@ function routeCommand(args = []) {
 function runSuggest(positionals, flags) {
   const task = positionals.join(' ').trim();
   if (!task) {
-    console.log(chalk.red('Uso: aios route suggest "<task>" [--policy quality-first|cost-first|speed-first]'));
+    console.log(chalk.red('Uso: aios route suggest "<task>" [--policy quality-first|cost-first|speed-first] [--incumbent <model> --cached <tokens> --new <tokens> --out <tokens>]'));
     return 1;
   }
 
   const policy = typeof flags.policy === 'string' ? flags.policy : undefined;
+  const incumbent = typeof flags.incumbent === 'string' ? flags.incumbent : undefined;
+  const cachedContextTokens = toInt(flags.cached);
+  const expectedNewInputTokens = toInt(flags.new);
+  const expectedOutputTokens = toInt(flags.out);
+
   const router = new LlmRouter({ projectRoot: process.cwd() });
-  const decision = router.route(task, { policy });
+  const decision = router.route(task, {
+    policy,
+    incumbent,
+    cachedContextTokens,
+    expectedNewInputTokens,
+    expectedOutputTokens,
+  });
 
   console.log(chalk.cyan(`🧭 Recomendação para: ${chalk.bold(task)}\n`));
   console.log(`  ${chalk.bold('Modelo:')}      ${chalk.green(decision.model)} ${chalk.dim(`(${decision.provider})`)}`);
@@ -84,7 +96,55 @@ function runSuggest(positionals, flags) {
       console.log(`    - ${chalk.yellow(alt.model)} ${chalk.dim(`— ${alt.why}`)}`);
     }
   }
+
+  if (incumbent) {
+    printCacheAnalysis(router, task, {
+      incumbent,
+      policy,
+      cachedContextTokens,
+      expectedNewInputTokens,
+      expectedOutputTokens,
+    });
+  }
   return 0;
+}
+
+/**
+ * Print the "Análise de cache" block comparing staying on the incumbent vs
+ * switching to the naive (cache-blind) recommendation, in human USD.
+ *
+ * @param {LlmRouter} router - Router instance (owns the priced matrix).
+ * @param {string} task - Task text.
+ * @param {Object} ctx - `{ incumbent, policy, cachedContextTokens, expectedNewInputTokens, expectedOutputTokens }`.
+ */
+function printCacheAnalysis(router, task, ctx) {
+  const { incumbent, policy, cachedContextTokens, expectedNewInputTokens, expectedOutputTokens } = ctx;
+  const naive = router.route(task, { policy }).model;
+  const sc = switchCost({
+    incumbentModel: incumbent,
+    candidateModel: naive,
+    cachedContextTokens,
+    expectedNewInputTokens,
+    expectedOutputTokens,
+    matrix: router.matrix,
+  });
+
+  console.log(chalk.bold('\n  🧊 Análise de cache (incumbente):'));
+  console.log(`    ${chalk.bold('Incumbente:')}  ${incumbent} ${chalk.dim(`(${cachedContextTokens} tokens em cache)`)}`);
+  console.log(`    ${chalk.bold('Candidato:')}   ${naive}`);
+
+  if (sc.recommendation === 'neutral') {
+    console.log(`    ${chalk.yellow('Neutro')} ${chalk.dim(`— ${sc.reason}`)}`);
+    return;
+  }
+
+  const rec = sc.recommendation === 'switch' ? chalk.green('switch') : chalk.cyan('stay');
+  const breakEven = sc.breakEvenTokens === Infinity ? '∞' : sc.breakEvenTokens;
+  console.log(`    ${chalk.bold('Custo stay:')}   ${formatUsd(sc.stayCost)}`);
+  console.log(`    ${chalk.bold('Custo switch:')} ${formatUsd(sc.switchCost)}`);
+  console.log(`    ${chalk.bold('Economia:')}    ${formatUsd(sc.saving)}`);
+  console.log(`    ${chalk.bold('Break-even:')}  ${breakEven} tokens novos`);
+  console.log(`    ${chalk.bold('Recomendação:')} ${rec}`);
 }
 
 /**
@@ -161,11 +221,23 @@ function parseArgs(argv) {
 }
 
 /**
+ * Coerce a flag value to a non-negative integer (missing/invalid → 0).
+ *
+ * @param {string|boolean|undefined} value - Raw flag value from `parseArgs`.
+ * @returns {number}
+ */
+function toInt(value) {
+  const n = Number.parseInt(value, 10);
+  return Number.isFinite(n) && n > 0 ? n : 0;
+}
+
+/**
  * Print usage help.
  */
 function printUsage() {
   console.log(chalk.bold('aios route') + ' — conselheiro de roteamento multi-LLM\n');
   console.log('  ' + chalk.cyan('suggest "<task>" [--policy quality-first|cost-first|speed-first]'));
+  console.log('  ' + chalk.dim('        [--incumbent <model> --cached <tokens> --new <tokens> --out <tokens>]'));
   console.log('  ' + chalk.cyan('matrix') + '                            tabela de capacidades por modelo');
   console.log('  ' + chalk.cyan('policies') + '                          policies de roteamento disponíveis');
 }

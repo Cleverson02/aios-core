@@ -69,6 +69,35 @@
         "notes": {
           "type": "string",
           "description": "Optional free-form note (pricing, provenance, caveats)."
+        },
+        "pricing": { "$ref": "#/definitions/pricing" }
+      }
+    },
+    "pricing": {
+      "type": "object",
+      "description": "Optional per-model pricing in USD per million tokens (per_mtok). Used by core/telemetry to compute cost. Story WSB-4.5.",
+      "required": ["input_per_mtok", "output_per_mtok", "cached_input_per_mtok"],
+      "additionalProperties": false,
+      "properties": {
+        "input_per_mtok": {
+          "type": "number",
+          "minimum": 0,
+          "description": "USD per 1M input (prompt) tokens."
+        },
+        "output_per_mtok": {
+          "type": "number",
+          "minimum": 0,
+          "description": "USD per 1M output (completion) tokens."
+        },
+        "cached_input_per_mtok": {
+          "type": "number",
+          "minimum": 0,
+          "description": "USD per 1M cached input tokens (typically ~10% of input)."
+        },
+        "cache_write_per_mtok": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Optional USD per 1M tokens written to the prompt cache."
         }
       }
     },

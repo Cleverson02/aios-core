@@ -21,6 +21,12 @@
 
 const { loadMatrix } = require('./matrix-loader');
 const { TaskComplexityClassifier } = require('../orchestration/task-complexity-classifier');
+const { switchCost } = require('./cache-affinity');
+
+/** Default fresh-input tokens assumed per chain step when a subtask omits it. */
+const DEFAULT_STEP_NEW_TOKENS = 2000;
+/** Categories that ALWAYS justify the strong model regardless of cache economics. */
+const QUALITY_OVERRIDE_CATEGORIES = new Set(['architecture-decision', 'security-review']);
 
 /**
  * Keyword → category heuristic (PT + EN). Substrings are matched against the
@@ -185,13 +191,247 @@ class LlmRouter {
    * one cost tier up (cheapest → next tier) for quality — documented and flagged
    * via `upgraded` in the reason.
    *
+   * Cache-aware overload (WSB-4.6): when `incumbent` is provided, the base
+   * decision is post-processed by `switchCost()`. If keeping the incumbent is
+   * cheaper (within `marginPct`) the incumbent is returned with a reason that
+   * spells out the USD on each side; otherwise the base recommendation stands
+   * (with the math appended). WITHOUT `incumbent` the behavior is byte-for-byte
+   * identical to before — existing callers/tests are untouched.
+   *
    * @param {string|Object} task - Task text or `{ description }`.
    * @param {Object} [options]
    * @param {string} [options.policy] - Force a policy (overrides task_routing).
+   * @param {boolean} [options.ignoreAvailability] - Skip the availability filter (WSB-4.4).
+   * @param {string} [options.incumbent] - Model already holding the cached context.
+   * @param {number} [options.cachedContextTokens] - Tokens cached on the incumbent.
+   * @param {number} [options.expectedNewInputTokens] - Fresh input tokens this step.
+   * @param {number} [options.expectedOutputTokens] - Expected completion tokens.
+   * @param {number} [options.marginPct] - Protective switch margin (default 10%).
+   * @returns {{ model: string, provider: string, category: string, complexity: string,
+   *   policy: string, reason: string, alternatives: Array<{ model: string, why: string }>,
+   *   cacheAffinity?: Object }}
+   */
+  route(task, options = {}) {
+    const {
+      policy,
+      ignoreAvailability,
+      incumbent,
+      cachedContextTokens = 0,
+      expectedNewInputTokens = 0,
+      expectedOutputTokens = 0,
+      marginPct,
+    } = options;
+
+    const base = this._decide(task, { policy, ignoreAvailability });
+
+    // No incumbent (or the pick already IS the incumbent) → unchanged behavior.
+    if (!incumbent || incumbent === base.model) return base;
+
+    return this._applyCacheAffinity(base, {
+      incumbent,
+      cachedContextTokens,
+      expectedNewInputTokens,
+      expectedOutputTokens,
+      marginPct,
+    });
+  }
+
+  /**
+   * Post-process a base decision with cache economics. Returns the incumbent when
+   * staying is cheaper (within margin), the base pick when switching wins, and
+   * the base pick untouched (but annotated) when pricing is missing (neutral).
+   *
+   * @param {Object} base - Decision from `_decide`.
+   * @param {Object} params - `{ incumbent, cachedContextTokens, expectedNewInputTokens, expectedOutputTokens, marginPct }`.
+   * @returns {Object} Possibly-rewritten decision (adds `cacheAffinity`).
+   * @private
+   */
+  _applyCacheAffinity(base, {
+    incumbent,
+    cachedContextTokens,
+    expectedNewInputTokens,
+    expectedOutputTokens,
+    marginPct,
+  }) {
+    const sc = switchCost({
+      incumbentModel: incumbent,
+      candidateModel: base.model,
+      cachedContextTokens,
+      expectedNewInputTokens,
+      expectedOutputTokens,
+      matrix: this.matrix,
+      marginPct,
+    });
+
+    if (sc.recommendation === 'neutral') {
+      return { ...base, cacheAffinity: sc, reason: `${base.reason} [cache-affinity neutro: ${sc.reason}]` };
+    }
+
+    if (sc.recommendation === 'stay') {
+      const incModel = this.matrix.models[incumbent];
+      return {
+        model: incumbent,
+        provider: incModel ? incModel.provider : 'unknown',
+        category: base.category,
+        complexity: base.complexity,
+        policy: base.policy,
+        reason:
+          `Mantém incumbente ${incumbent} por afinidade de cache — trocar p/ ${base.model} sairia mais caro. ${sc.explanation}`,
+        alternatives: base.alternatives,
+        cacheAffinity: sc,
+      };
+    }
+
+    // switch: keep the base recommendation, expose the winning math.
+    return { ...base, reason: `${base.reason} Cache-affinity confirma a troca: ${sc.explanation}`, cacheAffinity: sc };
+  }
+
+  /**
+   * Route an ENTIRE chain of subtasks with cache affinity (AC3).
+   *
+   * Picks a single anchor model from the dominant category (mode; ties broken by
+   * the higher cost_tier of the routed model, then name), then walks the chain
+   * keeping the anchor as the cached incumbent. Cached context ACCUMULATES as the
+   * chain proceeds (each step adds its `expectedNewInputTokens`, default 2000), so
+   * switching away gets progressively more expensive. Exceptions are marked where
+   * a switch genuinely pays off, and `architecture-decision`/`security-review`
+   * ALWAYS flag `qualityOverride: true` (strong model wins on quality, with the
+   * cache math exposed in the reason).
+   *
+   * @param {Array<{ description?: string, text?: string, expectedNewInputTokens?: number,
+   *   expectedOutputTokens?: number }|string>} subtasks - The chain.
+   * @param {Object} [options]
+   * @param {string} [options.policy] - Force a policy for every step.
+   * @param {number} [options.cachedContextTokens] - Pre-existing cached tokens on the anchor.
+   * @param {number} [options.marginPct] - Protective switch margin (default 10%).
+   * @returns {{ anchor: string|null,
+   *   steps: Array<{ index: number, category: string, model: string, switched: boolean,
+   *     qualityOverride: boolean, reason: string }>,
+   *   totalEstimatedCost: number }}
+   */
+  routeChain(subtasks = [], { policy, cachedContextTokens = 0, marginPct } = {}) {
+    if (!Array.isArray(subtasks) || subtasks.length === 0) {
+      return { anchor: null, steps: [], totalEstimatedCost: 0 };
+    }
+
+    const items = subtasks.map((st, index) => {
+      const description = typeof st === 'string' ? st : this._text(st);
+      const expectedNewInputTokens =
+        st && typeof st === 'object' && st.expectedNewInputTokens !== undefined
+          ? st.expectedNewInputTokens
+          : DEFAULT_STEP_NEW_TOKENS;
+      const expectedOutputTokens =
+        st && typeof st === 'object' && st.expectedOutputTokens !== undefined ? st.expectedOutputTokens : 0;
+      return { index, description, category: this.categorize(description), expectedNewInputTokens, expectedOutputTokens };
+    });
+
+    const anchorCategory = this._dominantCategory(items, policy);
+    const anchorRep = items.find((it) => it.category === anchorCategory) || items[0];
+    const anchor = this._decide(anchorRep.description, { policy }).model;
+
+    let cached = Math.max(0, Number(cachedContextTokens) || 0);
+    let totalEstimatedCost = 0;
+    const steps = [];
+
+    for (const it of items) {
+      const naive = this._decide(it.description, { policy }).model;
+      const forcedQuality = QUALITY_OVERRIDE_CATEGORIES.has(it.category);
+      const sc = switchCost({
+        incumbentModel: anchor,
+        candidateModel: naive,
+        cachedContextTokens: cached,
+        expectedNewInputTokens: it.expectedNewInputTokens,
+        expectedOutputTokens: it.expectedOutputTokens,
+        matrix: this.matrix,
+        marginPct,
+      });
+
+      let model;
+      let switched;
+      let qualityOverride = false;
+      let reason;
+
+      if (forcedQuality && naive !== anchor) {
+        qualityOverride = true;
+        model = naive;
+        switched = true;
+        reason =
+          `Quality override (${it.category}): usa ${model} independentemente do cache. ` +
+          (sc.recommendation === 'neutral' ? sc.reason : sc.explanation);
+      } else if (naive === anchor) {
+        model = anchor;
+        switched = false;
+        qualityOverride = forcedQuality; // anchor already IS the strong model
+        reason = forcedQuality
+          ? `Âncora ${anchor} já é o modelo forte para ${it.category}.`
+          : `Mantém âncora ${anchor} (categoria ${it.category} roteia para a âncora).`;
+      } else if (sc.recommendation === 'switch') {
+        model = naive;
+        switched = true;
+        reason = `Troca compensa mesmo perdendo cache: ${sc.explanation}`;
+      } else if (sc.recommendation === 'neutral') {
+        model = anchor;
+        switched = false;
+        reason = `Afinidade neutra (${sc.reason}) → mantém âncora ${anchor}.`;
+      } else {
+        model = anchor;
+        switched = false;
+        reason = `Mantém âncora ${anchor} por afinidade de cache: ${sc.explanation}`;
+      }
+
+      if (sc.recommendation !== 'neutral') {
+        totalEstimatedCost += switched ? sc.switchCost : sc.stayCost;
+      }
+
+      steps.push({ index: it.index, category: it.category, model, switched, qualityOverride, reason });
+      cached += it.expectedNewInputTokens;
+    }
+
+    return { anchor, steps, totalEstimatedCost };
+  }
+
+  /**
+   * Dominant category of a categorized chain: the mode, with ties broken by the
+   * higher cost_tier of the category's routed model, then by category name.
+   *
+   * @param {Array<{ category: string, description: string }>} items - Categorized subtasks.
+   * @param {string} [policy] - Policy used to resolve a category's model for tie-breaks.
+   * @returns {string} Winning category id.
+   * @private
+   */
+  _dominantCategory(items, policy) {
+    const counts = new Map();
+    for (const it of items) counts.set(it.category, (counts.get(it.category) || 0) + 1);
+
+    let maxCount = 0;
+    for (const c of counts.values()) if (c > maxCount) maxCount = c;
+    const tied = [...counts.entries()].filter(([, c]) => c === maxCount).map(([cat]) => cat);
+    if (tied.length === 1) return tied[0];
+
+    const costRankOf = (cat) => {
+      const rep = items.find((it) => it.category === cat);
+      const modelId = this._decide(rep.description, { policy }).model;
+      const model = this.matrix.models[modelId];
+      return model ? COST_RANK[model.cost_tier] : -1;
+    };
+    tied.sort((a, b) => costRankOf(b) - costRankOf(a) || a.localeCompare(b));
+    return tied[0];
+  }
+
+  /**
+   * Decide a model for a single task (the pre-WSB-4.6 `route` core). Kept private
+   * so the public `route` can layer cache-affinity on top without duplicating the
+   * category/policy/availability logic.
+   *
+   * @param {string|Object} task - Task text or `{ description }`.
+   * @param {Object} [options]
+   * @param {string} [options.policy] - Force a policy (overrides task_routing).
+   * @param {boolean} [options.ignoreAvailability] - Skip the availability filter (WSB-4.4).
    * @returns {{ model: string, provider: string, category: string, complexity: string,
    *   policy: string, reason: string, alternatives: Array<{ model: string, why: string }> }}
+   * @private
    */
-  route(task, { policy: forcedPolicy } = {}) {
+  _decide(task, { policy: forcedPolicy, ignoreAvailability = false } = {}) {
     const text = this._text(task);
     const category = this.categorize(text);
     const complexity = this.classifier.classify({ description: text }).level;
@@ -217,12 +457,78 @@ class LlmRouter {
       );
     }
 
-    const candidates = this._relevantModels(category);
+    let candidates = this._relevantModels(category);
+
+    // WSB-4.4 AC3: honor provider availability (per the availability cache).
+    // NO-OP when the cache is absent (`null`) — routing behaves exactly as
+    // before wherever provider setup has not run.
+    const unavailable = ignoreAvailability ? null : this._unavailableProviders();
+    const isDown = (provider) => (unavailable ? unavailable.has(provider) : false);
+
+    // Within the category, drop unavailable providers — but never strand: if
+    // that would empty the set, keep the original (all-unavailable ⇒ neutral).
+    if (unavailable && unavailable.size) {
+      const filtered = candidates.filter((c) => !isDown(c.model.provider));
+      if (filtered.length) candidates = filtered;
+    }
 
     if (directModel) {
+      const directModelObj = this.matrix.models[directModel];
+      const directProvider = directModelObj && directModelObj.provider;
+      if (unavailable && directProvider && isDown(directProvider)) {
+        // Curated model's provider is down → re-route via the default policy
+        // among the AVAILABLE models (relevant first, else any available), and
+        // record the substitution in the reason. If nothing is available
+        // anywhere, stay neutral and keep the curated choice.
+        const pool = this._availablePool(category, isDown);
+        if (pool.length) {
+          const decision = this._policyDecision(this.matrix.default_policy, category, complexity, pool);
+          decision.reason = `${directModel} indisponível → roteado para ${decision.model}. ${decision.reason}`;
+          return decision;
+        }
+      }
       return this._directDecision(directModel, category, complexity, candidates);
     }
     return this._policyDecision(effectivePolicy, category, complexity, candidates);
+  }
+
+  /**
+   * Build a re-route pool of AVAILABLE models: category-relevant ones first, and
+   * when none of those are available, every available model in the matrix. Used
+   * only when a curated direct mapping points to a down provider.
+   *
+   * @param {string} category - Routing category.
+   * @param {(provider: string) => boolean} isDown - Availability predicate.
+   * @returns {Array<{ id: string, model: Object, matches: string[] }>}
+   * @private
+   */
+  _availablePool(category, isDown) {
+    const relevantAvailable = this._relevantModels(category).filter((c) => !isDown(c.model.provider));
+    if (relevantAvailable.length) return relevantAvailable;
+    return Object.entries(this.matrix.models)
+      .filter(([, model]) => !isDown(model.provider))
+      .map(([id, model]) => ({ id, model, matches: [...model.strengths] }));
+  }
+
+  /**
+   * Set of provider ids currently marked unavailable, read lazily from the
+   * provider-availability cache. Returns `null` (⇒ filter nothing) when the
+   * providers module or its cache is absent — this keeps routing behavior
+   * unchanged wherever WSB-4.4 has not been set up.
+   *
+   * @returns {Set<string>|null}
+   * @private
+   */
+  _unavailableProviders() {
+    try {
+      // Lazy require so the router has zero hard dependency on the providers
+      // module; any load/read failure degrades to "no filtering".
+      const providers = require('../providers');
+      if (!providers || typeof providers.unavailableProviders !== 'function') return null;
+      return providers.unavailableProviders({ cwd: this.projectRoot || process.cwd() });
+    } catch {
+      return null;
+    }
   }
 
   /**
@@ -353,4 +659,6 @@ module.exports = {
   CATEGORY_STRENGTHS,
   COST_RANK,
   SPEED_RANK,
+  DEFAULT_STEP_NEW_TOKENS,
+  QUALITY_OVERRIDE_CATEGORIES,
 };
